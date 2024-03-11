@@ -18,19 +18,19 @@ export const DepartmentInfoCard = () => {
                 <div className="space-y-2 m-2 text-xs">
                     <div className="flex space-x-10">
                         <FaPhone style={{ fontSize: '1rem', color: '#66CCFF' }}/>
-                        <span className="text-gray-900">(+267) 3688200/8300</span>
+                        <span className="text-gray-900">(+267) 3933472</span>
                     </div>
                     <div className="flex space-x-10">
                         <FaMailBulk style={{ fontSize: '1rem', color: '#66CCFF' }}/>
-                        <span className="text-gray-900">botepco@gov.bw</span>
+                        <span className="text-gray-900">enquiries@botepco.org.bw</span>
                     </div>
                     <div className="flex space-x-10">
                         <FaMapMarkedAlt style={{ fontSize: '1rem', color: '#66CCFF' }}/>
-                        <span className="text-gray-900">Plot Number 64535, CBD</span>
+                        <span className="text-gray-900">Plot 54357 Varsha Enterprise Building (CBD), Gaborone</span>
                     </div>
                     <div className="flex space-x-10">
                         <FaEnvelope style={{ fontSize: '1rem', color: '#66CCFF' }}/>
-                        <span className="text-gray-900">Private Bag 04848 Gaborone Botswana</span>
+                        <span className="text-gray-900">P O Box 407 AAD POSO HOUSE</span>
                     </div>
                 </div>
             </div>
