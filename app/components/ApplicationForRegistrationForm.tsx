@@ -3,7 +3,7 @@
 import React, { useCallback, useState } from "react";
 import {Stepper } from "./Stepper";
 import {motion} from 'framer-motion';
-import { FormDataSchema, formSchema, teacherPreliminaryInfoSchema, studentStudyProgrammes, offenceConvictions,teacherRegistrations,declarations,employmentDetails,attachments, studentPreliminaryInfos, institutionRecommendations, qualificationSchema   } from "../lib/schema";
+import {formSchema} from "../lib/schema";
 import { InformationCard } from "./InformationCard";
 import { DiplomaLevel, CertificationLevel, PostGradDiplomaLevel, DegreeLevel, PostGradCertificateLevel, PhDLevel, MastersLevel} from "./QualificationLevelComponents";
 
@@ -69,6 +69,7 @@ import axios from 'axios';
 import { resolve } from "path";
 import { rejects } from "assert";
 import { constrainedMemory } from "process";
+import { createRegistration } from "../lib/actions";
 
 interface RegistrationFormProps{
     onClose: () => void;
@@ -394,42 +395,29 @@ export const ApplicationForRegistrationForm: React.FC<RegistrationFormProps> = (
                 }
             }
         }
-
-        try{
-            const registrationEndpoint = `http://66.179.253.57/api/teacher_registrations/`;
+        const res = await createRegistration(values);
+        if (res.status !== 200 && res.status !== 201) { 
+            setCurrentStep(step => step + 1)
+            setIsSubmitting(false);
             
-            const response = await axios.post(registrationEndpoint, values, {
-                maxBodyLength: 200000000,
-            });
-
-            // const response = await fetch(registrationEndpoint,{
-            //     method: 'POST',
-            //     headers: {
-            //         'Content-Type': 'application/json',
-            //         //'Accept': '*/*',
-            //         //'Accept-Encoding': 'gzip, deflate, br',
-            //         'Connection': 'keep-alive',
-            //     },
-            //     //body: formData,
-            //     //body: valueswithBio,
-            //     body: JSON.stringify({...values}), // Spread the valueswithBio object to remove the nesting key.
-            // })
-            // if(!response.ok){
-            //     //setCurrentStep(step => step + 1) dd
-            //     const responseBody = await response.json();
-            //     if(responseBody.message.includes("Error! The National ID used already exists in our database")){
-            //         throw new Error("National ID already exists in the database.");
-            //     } else{
-            //         throw new Error("Failed to register");
-            //     }
-            // }
-            setCurrentStep(step => step + 1) // Advance to the complete stage only if the response is successful
-            //form.reset();
-        }catch (error:any){
+        } else {
+            setIsSubmitting(false);
             setIsErrorAlert(true);
-        }finally{
-            setIsSubmitting(false); // Change state back after submission is completed
         }
+
+        // try{
+        //     const registrationEndpoint = `http://66.179.253.57/api/teacher_registrations/`;
+            
+        //     const response = await axios.post(registrationEndpoint, values, {
+        //         maxBodyLength: 200000000,
+        //     });
+        //     setCurrentStep(step => step + 1) // Advance to the complete stage only if the response is successful
+        //     //form.reset();
+        // }catch (error:any){
+        //     setIsErrorAlert(true);
+        // }finally{
+        //     setIsSubmitting(false); // Change state back after submission is completed
+        // }
     }
     const [showDiplomaLevel, setShowDiplomaLevel] = useState(false);
     const handleDiplomaCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {

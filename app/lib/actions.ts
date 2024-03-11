@@ -2,7 +2,9 @@
 import { signIn } from "../auth/signIn"
 import { revalidateTag } from "next/cache"
 import { GSP_NO_RETURNED_VALUE } from "next/dist/lib/constants"
-
+import * as z from 'zod'
+import {formSchema} from "../lib/schema";
+import axios from 'axios';
 
 export async function authenticate(_currentState: unknown, formData: FormData) {
     try {
@@ -20,7 +22,24 @@ export async function authenticate(_currentState: unknown, formData: FormData) {
     }
   }
  
-
+  export async function createRegistration(values: z.infer<typeof formSchema>) {
+    console.log(values)
+    try{
+      const registrationEndpoint = `http://66.179.253.57/api/teacher_registrations/`;
+      
+      const response = await axios.post(registrationEndpoint, values, {
+          maxBodyLength: 200000000,
+      });
+      return { status: response.status, data: response.data};  
+        //form.reset();
+      }catch (error:any){
+          return { status: error.data.status, data: error.data.message};
+          console.log(error.data.message)
+          //throw new Error('Failed to create')
+      }finally{
+        
+      }
+}
 //import { revalidateTag } from "next/cache"
 
 export async function revalidate(params:string) {
@@ -38,11 +57,13 @@ export default async function getHistory(reg_number: string){
     ]
     //const res = await fetch('') // docs: fetching-caching-and-revalidating
     return statuses
-  }
+}
+
+
 
 export async function getNext(){
     revalidateTag('work')
-    const res = await fetch('http://66.179.253.57/api/getNext/', {next:{tags:['work']}})
+    const res = await fetch('http://66.179.253.57/api/getNext/', {cache: 'no-store'})
 
     if(!res.ok){
         if(res.status === 204){
