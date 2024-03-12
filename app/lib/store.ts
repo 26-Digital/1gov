@@ -194,6 +194,11 @@ export const steps = [
     },
     {
         id: 'Step 10',
+        name: 'PAYMENT',
+        fields: ['Citizenry','Status','Categories of Practice','Sub-categories']
+    },
+    {
+        id: 'Step 11',
         name: 'COMPLETE'
     },
 ]
@@ -230,6 +235,11 @@ export const studentSteps = [
     },
     {
         id: 'Step 7',
+        name: 'PAYMENT',
+        fields: ['Citizenry','Status','Categories of Practice','Sub-categories']
+    },
+    {
+        id: 'Step 8',
         name: 'COMPLETE'
     },
 ]
