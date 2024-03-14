@@ -799,7 +799,7 @@ export const ApplicationForRegistrationForm: React.FC<RegistrationFormProps> = (
                                     </FormItem>
                                 }}
                             />  
-                            <FormField
+                            {/*<FormField
                                 control={form.control}
                                 name="bio_datas.surname"
                                 render={({field}) =>{
@@ -814,8 +814,8 @@ export const ApplicationForRegistrationForm: React.FC<RegistrationFormProps> = (
                                         <FormMessage/>
                                     </FormItem>
                                 }}
-                            />  
-                            <FormField
+                            />  */}
+                                {/*<FormField
                                 control={form.control}
                                 name="bio_datas.forenames"
                                 render={({field}) =>{
@@ -830,7 +830,7 @@ export const ApplicationForRegistrationForm: React.FC<RegistrationFormProps> = (
                                         <FormMessage/>
                                     </FormItem>
                                 }}
-                            />  
+                            /> */} 
                             </div>
                         </div>
                         </motion.div>
