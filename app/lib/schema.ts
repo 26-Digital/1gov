@@ -298,7 +298,7 @@ export const formSchemax = z.object({
     // For other cases, return true (no extra validation needed)
     return true;
   }, {
-    message: 'you are required to select the offence type specified',
+    message: 'you are required to select the offence type',
     path: ['offence_convictions'],
   }),
 
