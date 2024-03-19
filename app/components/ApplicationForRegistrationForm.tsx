@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import { FormDataSchema, formSchema, teacherPreliminaryInfoSchema, studentStudyProgrammes, offenceConvictions, teacherRegistrations, declarations, employmentDetails, attachments, studentPreliminaryInfos, institutionRecommendations, qualificationSchema } from "../lib/schema";
 import { InformationCard } from "./InformationCard";
 import { DiplomaLevel, CertificationLevel, PostGradDiplomaLevel, DegreeLevel, PostGradCertificateLevel, PhDLevel, MastersLevel } from "./QualificationLevelComponents";
-
+import { FaCreditCard } from "react-icons/fa";
 import * as z from 'zod'
 import { zodResolver } from "@hookform/resolvers/zod";
 import { steps, studentSteps, hiddenSteps } from "../lib/store";
@@ -1215,18 +1215,8 @@ interface RegistrationFormProps {
                                     animate={{ y: 0, opacity: 1 }}
                                     transition={{ duration: 0.3, ease: 'easeInOut' }}
                                 >
-                                    {isErrorAlert &&
-                                        <div className="mr-1">
-                                            <Alert variant="destructive">
-                                                <ExclamationTriangleIcon className="h-4 w-4" />
-                                                <AlertTitle>Error</AlertTitle>
-                                                <AlertDescription>
-                                                    Error submitting application, possible duplicate. Try again later...
-                                                </AlertDescription>
-                                            </Alert>
-                                        </div>
-                                    }
-                                    <div className={`border ${isErrorAlert ? 'h-80' : 'h-96'} p-2 rounded-lg mb-2 mr-1`}>
+
+                                    <div className={`border ${isErrorAlert ? 'h-96' : 'h-96'} p-2 rounded-lg mb-2 mr-1`}>
                                         <ScrollArea className="h-full">
                                             <div className="px-5">
                                                 <Accordion type="single" collapsible>
@@ -1325,8 +1315,103 @@ interface RegistrationFormProps {
                                     </div>
                                 </motion.div>
                             )}
-                            {/*STUDENT-COMPLETE*/}
+                            
                             {currentStep === 6 && applicationType === 'student' && (
+                                <motion.div
+                                    initial={{ y: delta >= 0 ? '50%' : '-50%', opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    transition={{ duration: 0.3, ease: 'easeInOut' }}
+                                        >
+                                                                                {isErrorAlert &&
+                                        <div className="mr-1">
+                                            <Alert variant="destructive">
+                                                <ExclamationTriangleIcon className="h-4 w-4" />
+                                                <AlertTitle>Error</AlertTitle>
+                                                <AlertDescription>
+                                                    Error submitting application, possible duplicate. Try again later...
+                                                </AlertDescription>
+                                            </Alert>
+                                        </div>
+                                    }
+                                    <div className={`border ${isErrorAlert ? 'h-80' : 'h-96'} overflow-auto p-2 rounded-lg mb-2 mr-1`}>
+                                        <div className="mb-2">
+                                            <Label>Payment Methods</Label>
+                                            <RadioGroup defaultValue="comfortable">
+                                                <div className="flex items-center space-x-2">
+                                                    <RadioGroupItem value="default" id="r1" />
+                                                    <FaCreditCard style={{ color: '#3a54d6' }}/>
+                                                    <Label htmlFor="r1">Debit or Credit Card</Label>
+                                                </div>
+                                                <div className="flex items-center space-x-2">
+                                                    <RadioGroupItem value="comfortable" id="r2" />
+                                                    <FaCreditCard style={{ color: '#db6f2c' }}/>
+                                                    <Label htmlFor="r2">Orange money</Label>
+                                                </div>
+                                                <div className="flex items-center space-x-2">
+                                                    <RadioGroupItem value="compact" id="r3" />
+                                                    <FaCreditCard style={{ color: '#d8db2c' }}/>
+                                                    <Label htmlFor="r3">MyZaka</Label>
+                                                </div>
+                                            </RadioGroup>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-2"> {/* Added gap-y-4 to add padding between rows */}
+                                                <div className="">
+                                                    <FormLabel>
+                                                        <Label htmlFor="card_number">First Name</Label>
+                                                    </FormLabel>
+                                                    <FormControl>
+                                                        <Input id="CardNumber" type="text" className="h-9" />
+                                                    </FormControl>
+                                                </div>
+                                                <div className="">
+                                                    <FormLabel>
+                                                        <Label htmlFor="card_number">Last Name</Label>
+                                                    </FormLabel>
+                                                    <FormControl>
+                                                        <Input id="CardNumber" type="text" className="h-9" />
+                                                    </FormControl>
+                                                </div>
+                                                <div className="">
+                                                    <FormLabel>
+                                                        <Label htmlFor="card_number">Credit Card Number</Label>
+                                                    </FormLabel>
+                                                    <FormControl>
+                                                        <Input id="CardNumber" type="text" className="h-9" />
+                                                    </FormControl>
+                                                </div>
+                                                <div className="">
+                                                    <FormLabel>
+                                                        <Label htmlFor="cvv">CVC</Label>
+                                                    </FormLabel>
+                                                    <FormControl>
+                                                        <Input id="cvv" type="text" className="h-9" />
+                                                    </FormControl>
+                                                    <FormDescription>
+                                                        Security Code
+                                                    </FormDescription>
+                                                </div>
+                                            {/* Second Row */}
+                                                <div className="">
+                                                    <FormLabel>
+                                                        <Label htmlFor="expiry_date">Expiry Date</Label>
+                                                    </FormLabel>
+                                                    <FormControl>
+                                                        <Input id="expiryDate" type="date" className="h-9" />
+                                                    </FormControl>
+                                                </div>
+                                        </div>
+                                        <div className="flex w-full items-center justify-center my-1">
+                                            <Button
+                                            className="bg-green-400 hover:bg-green-500 w-28"
+                                            >
+                                                Pay
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            )}
+                            {/*STUDENT-COMPLETE*/}
+                            {currentStep === 7 && applicationType === 'student' && (
                                 <motion.div
                                     initial={{ y: delta >= 0 ? '50%' : '-50%', opacity: 0 }}
                                     animate={{ y: 0, opacity: 1 }}
@@ -2387,17 +2472,6 @@ interface RegistrationFormProps {
                                     animate={{ y: 0, opacity: 1 }}
                                     transition={{ duration: 0.3, ease: 'easeInOut' }}
                                 >
-                                    {isErrorAlert &&
-                                        <div className="mr-1">
-                                            <Alert variant="destructive">
-                                                <ExclamationTriangleIcon className="h-4 w-4" />
-                                                <AlertTitle>Error</AlertTitle>
-                                                <AlertDescription>
-                                                    Error submitting application, possible duplicate. Try again later...
-                                                </AlertDescription>
-                                            </Alert>
-                                        </div>
-                                    }
                                     <div className={`border ${isErrorAlert ? 'h-80' : 'h-96'} p-2 rounded-lg mb-2 mr-1`}>
                                         <ScrollArea className="h-full">
                                             <div className="px-5">
@@ -2558,107 +2632,95 @@ interface RegistrationFormProps {
                                     initial={{ y: delta >= 0 ? '50%' : '-50%', opacity: 0 }}
                                     animate={{ y: 0, opacity: 1 }}
                                     transition={{ duration: 0.3, ease: 'easeInOut' }}
-    >
-<div className="border md:h-96 h-96 overflow-auto p-2 rounded-lg mb-2 mr-1">
-    <div className="grid grid-cols-2 gap-y-4"> {/* Added gap-y-4 to add padding between rows */}
-        {/* Amount Row */}
-        <div className="grid md:grid-cols-2 grid-cols-2 mb-2 gap-2">
-            <div className="flex space-x-2">
-                <FormLabel>
-                    <Label htmlFor="amount">Amount</Label>
-                </FormLabel>
-                <FormControl>
-                    <Input id="amount" type="number" className="h-9" readOnly />
-                </FormControl>
-            </div>
-        </div>
-
-        {/* First Row */}
-        <div className="grid md:grid-cols-2 grid-cols-2 mb-2 gap-2">
-            <div className="flex space-x-2">
-                <FormLabel>
-                    <Label htmlFor="payment_method">Payment Method</Label>
-                </FormLabel>
-                <FormControl>
-                    <Select>
-                        <SelectTrigger className="">
-                            <SelectValue placeholder="Theme" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="credit_card">Credit Card</SelectItem>
-                            <SelectItem value="debit_card">Debit Card</SelectItem>
-                            <SelectItem value="paypal">PayPal</SelectItem>
-                        </SelectContent>
-                    </Select>
-                </FormControl>
-            </div>
-        </div>
-
-        <div className="grid md:grid-cols-2 grid-cols-2 mb-2 gap-2">
-            <div className="flex space-x-2">
-                <FormLabel>
-                    <Label htmlFor="card_number">Card Number</Label>
-                </FormLabel>
-                <FormControl>
-                    <Input id="CardNumber" type="text" className="h-9" />
-                </FormControl>
-            </div>
-        </div>
-
-        {/* Second Row */}
-        <div className="grid md:grid-cols-2 grid-cols-2 mb-2 gap-2">
-            <div className="flex space-x-2">
-                <FormLabel>
-                    <Label htmlFor="expiry_date">Expiry Date</Label>
-                </FormLabel>
-                <FormControl>
-                    <Input id="expiryDate" type="date" className="h-9" />
-                </FormControl>
-            </div>
-        </div>
-
-        <div className="grid md:grid-cols-2 grid-cols-2 mb-2 gap-2">
-            <div className="flex space-x-2">
-                <FormLabel>
-                    <Label htmlFor="cvv">CVV</Label>
-                </FormLabel>
-                <FormControl>
-                    <Input id="cvv" type="text" className="h-9" />
-                </FormControl>
-            </div>
-        </div>
-
-        {/* Third Row */}
-        <div className="grid md:grid-cols-2 grid-cols-2 mb-2 gap-2">
-            <div className="flex space-x-2">
-                <FormLabel>
-                    <Label htmlFor="name_on_card">Name on Card</Label>
-                </FormLabel>
-                <FormControl>
-                    <Input id="nameOnCard" type="text" className="h-9" />
-                </FormControl>
-            </div>
-        </div>
-
-        <div className="grid md:grid-cols-2 grid-cols-2 mb-2 gap-2">
-            <div className="flex space-x-2">
-                <FormLabel>
-                    <Label htmlFor="billing_address">Billing Address</Label>
-                </FormLabel>
-                <FormControl>
-                    <Input id="billingAddress" type="text" className="h-9" />
-                </FormControl>
-            </div>
-        </div>
-    </div>
-</div>
-
-
+                                        >
+                                                                                {isErrorAlert &&
+                                        <div className="mr-1">
+                                            <Alert variant="destructive">
+                                                <ExclamationTriangleIcon className="h-4 w-4" />
+                                                <AlertTitle>Error</AlertTitle>
+                                                <AlertDescription>
+                                                    Error submitting application, possible duplicate. Try again later...
+                                                </AlertDescription>
+                                            </Alert>
+                                        </div>
+                                    }
+                                    <div className={`border ${isErrorAlert ? 'h-80' : 'h-96'} overflow-auto p-2 rounded-lg mb-2 mr-1`}>
+                                        <div className="mb-2">
+                                            <Label>Payment Methods</Label>
+                                            <RadioGroup defaultValue="comfortable">
+                                                <div className="flex items-center space-x-2">
+                                                    <RadioGroupItem value="default" id="r1" />
+                                                    <FaCreditCard style={{ color: '#3a54d6' }}/>
+                                                    <Label htmlFor="r1">Debit or Credit Card</Label>
+                                                </div>
+                                                <div className="flex items-center space-x-2">
+                                                    <RadioGroupItem value="comfortable" id="r2" />
+                                                    <FaCreditCard style={{ color: '#db6f2c' }}/>
+                                                    <Label htmlFor="r2">Orange money</Label>
+                                                </div>
+                                                <div className="flex items-center space-x-2">
+                                                    <RadioGroupItem value="compact" id="r3" />
+                                                    <FaCreditCard style={{ color: '#d8db2c' }}/>
+                                                    <Label htmlFor="r3">MyZaka</Label>
+                                                </div>
+                                            </RadioGroup>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-2"> {/* Added gap-y-4 to add padding between rows */}
+                                                <div className="">
+                                                    <FormLabel>
+                                                        <Label htmlFor="card_number">First Name</Label>
+                                                    </FormLabel>
+                                                    <FormControl>
+                                                        <Input id="CardNumber" type="text" className="h-9" />
+                                                    </FormControl>
+                                                </div>
+                                                <div className="">
+                                                    <FormLabel>
+                                                        <Label htmlFor="card_number">Last Name</Label>
+                                                    </FormLabel>
+                                                    <FormControl>
+                                                        <Input id="CardNumber" type="text" className="h-9" />
+                                                    </FormControl>
+                                                </div>
+                                                <div className="">
+                                                    <FormLabel>
+                                                        <Label htmlFor="card_number">Credit Card Number</Label>
+                                                    </FormLabel>
+                                                    <FormControl>
+                                                        <Input id="CardNumber" type="text" className="h-9" />
+                                                    </FormControl>
+                                                </div>
+                                                <div className="">
+                                                    <FormLabel>
+                                                        <Label htmlFor="cvv">CVC</Label>
+                                                    </FormLabel>
+                                                    <FormControl>
+                                                        <Input id="cvv" type="text" className="h-9" />
+                                                    </FormControl>
+                                                    <FormDescription>
+                                                        Security Code
+                                                    </FormDescription>
+                                                </div>
+                                            {/* Second Row */}
+                                                <div className="">
+                                                    <FormLabel>
+                                                        <Label htmlFor="expiry_date">Expiry Date</Label>
+                                                    </FormLabel>
+                                                    <FormControl>
+                                                        <Input id="expiryDate" type="date" className="h-9" />
+                                                    </FormControl>
+                                                </div>
+                                        </div>
+                                        <div className="flex w-full items-center justify-center my-1">
+                                            <Button
+                                            className="bg-green-400 hover:bg-green-500 w-28"
+                                            >
+                                                Pay
+                                            </Button>
+                                        </div>
+                                    </div>
                                 </motion.div>
                             )}
-
-
-
                             {/*COMPLETE*/}
                             {currentStep === 10 && applicationType !== 'student' && (
                                 <motion.div
@@ -2700,14 +2762,14 @@ interface RegistrationFormProps {
                                 >Prev</button>
                                 <button
                                     type="button"
-                                    hidden={(applicationType === '') || (applicationType === 'teacher' && ((currentStep === steps.length - 2) || (currentStep === steps.length - 2) || (currentStep === steps.length - 1))) || (applicationType === 'student' && ((currentStep === studentSteps.length - 1) || (currentStep === studentSteps.length - 2) || (currentStep === studentSteps.length - 1)))}
+                                    hidden={(applicationType === '') || (applicationType === 'teacher' && ((currentStep === steps.length - 1) || (currentStep === steps.length - 2) || (currentStep === steps.length - 1))) || (applicationType === 'student' && ((currentStep === studentSteps.length - 1) || (currentStep === studentSteps.length - 2) || (currentStep === studentSteps.length - 1)))}
                                     onClick={next}
-                                    disabled={(applicationType === 'teacher' && currentStep === steps.length - 4 && (isProfileChecked === false || IsAgreement !== true)) || (applicationType === 'student' && currentStep === studentSteps.length - 4 && (isProfileChecked === false || IsAgreement !== true))}
+                                    disabled={(applicationType === 'teacher' && currentStep === steps.length - 4 && (isProfileChecked === false || IsAgreement !== true)) || (applicationType === 'student' && currentStep === studentSteps.length - 5 && (isProfileChecked === false || IsAgreement !== true))}
                                     className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2 text-center"
                                 >Next</button>
                                 <button
                                     type="submit"
-                                    hidden={(applicationType === '') || (applicationType === 'teacher' && (currentStep !== steps.length - 3 || currentStep !== steps.length - 2)) || (applicationType === 'student' && currentStep !== studentSteps.length - 2)}
+                                    hidden={(applicationType === '') || (applicationType === 'teacher' && (currentStep !== steps.length - 2 || currentStep !== steps.length - 2)) || (applicationType === 'student' && currentStep !== studentSteps.length - 2)}
                                     disabled={isSubmitting} // Disable the button while submitting
                                     className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2 text-center"
                                 >{isSubmitting ? "Submitting...." : "Submit"}</button>
