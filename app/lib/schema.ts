@@ -254,56 +254,114 @@ const bioDatasSchema = z.object({
 });
 export const formSchemax = z.object({
   /**
-   * Application for teacher/stundent registration schema.
+   * Application for teacher/student registration schema.
    * Desc: Nested objects, meets backend specification
    * */
-  teacher_preliminary_infos: teacherPreliminaryInfoSchema,
-  employment_details: employmentDetails,
-  teacher_registrations: teacherRegistrations,
-  offence_convictions: offenceConvictions,
-  attachments: attachments,
-  bio_datas: bioDatasSchema,
-  student_study_programmes: studentStudyProgrammes,
-  student_preliminary_infos: studentPreliminaryInfos,
- 
+  teacher_preliminary_infos:  z.object({
+    /**
+     * Preliminary Info schema.*/
+    work_status: z.string().optional(),
+    practice_category: z.string().optional(),
+    sub_cateogry: z.string().optional(),
+  }),
+  
+  employment_details: z.object({
+    /**
+     * Employment Details schema.*/
+    experience_years: z.coerce.number().optional(),
+    current_institution: z.string().optional(),
+    //institution_type: z.enum(["private", "public"]).optional(),
+    institution_type: z.string().optional(),
+    region: z.string().optional(),
+    district: z.string().optional(),
+    city_or_town: z.string().optional(),
+}),
 
-//for employment details 
-  employmentDetails: z.object({
-
-    employment_details: z.string().optional(),
-  }).nullable().refine((data) => {
-    if (!data) {
-      return false; // Employment details object is null
-    }
-    
-    return true; 
-  }, {
-    message: 'Employment details cannot be null',
-    path: ['employment_details'],
+  teacher_registrations:  z.object({
+    /**
+     * Capture teacher registration, it should be a disability object.
+    */
+    registration_type: z.string().optional(),
+    reg_status: z.string().optional(),
+    reg_number: z.string().optional(),
   }),
 
-   //for offenses
-   offenceConvictions: z.object({
-    offence_convictions: z.string().optional(),
-    // offence_convictions: typeof window === "undefined" ? z.any() : z.any().optional(),
+  offence_convictions: z.object({
+
+    student_related_offence: z.string().optional(),
+    student_related_offence_details: z.string().optional(),
+    drug_related_offence: z.string().optional(),
+    drug_related_offence_details: z.string().optional(),
+    license_flag: z.string().optional(),
+    misconduct_flag: z.string().optional(),
   }).refine((data) => {
-    //const teacherRegistrationType = context.parent?.teacherRegistrations?.registration_type;
-    // Check if recommended is 'yes' and registration_type is 'teacher'
-  
-    if (data.offence_convictions?.toLowerCase() === 'yes') {
-      // Ensure attachment is provided if recommended is 'yes' and registration_type is 'teacher'
-      return data.offence_convictions !== undefined;
+   
+    if (data.student_related_offence?.toLowerCase() === 'yes') {
+      // Ensure offence type is provided if is 'yes' and registration_type is 'teacher'
+      return data.student_related_offence_details !== undefined;
     }
   
     // For other cases, return true (no extra validation needed)
     return true;
   }, {
-    message: 'you are required to select the offence type',
-    path: ['offence_convictions'],
+    message: 'Offence type is required',
+    path: ['student_related_offence_details'],
   }),
 
+  attachments:  typeof window === "undefined" ? z.any():
+  z
+  .any()
+  .optional(),
 
+  bio_datas: z.object({
+    national_id: z.string(),
+    surname: z.string(),
+    forenames: z.string(),
+    dob: z.string(), // Assuming date format is string
+    pob: z.string(),
+    gender: z.string(),
+    nationality: z.string(),
+    postal_address: z.string(),
+    physical_address: z.string(),
+    email: z.string().email(), // Ensure email format is valid
+    mobile: z.string(), // Assuming mobile number is string
+    marital_status: z.string(),
+    next_of_kin_name: z.string(),
+    next_of_kin_relation: z.string(),
+    next_of_kin_contact: z.string(),
+    //disability: z.enum(["yes","no"]).optional(),
+    disability: z.string().optional(),
+    disability_description: z.string().optional(),
+  }).refine((data) => {
+   
+    if (data.disability?.toLowerCase() === 'yes') {
+      // Ensure nature of disablity  is selected if disability is 'yes' and registration_type is 'teacher'
+      return data.disability_description !== undefined;
+    }
+  
+    // For other cases, return true (no extra validation needed)
+    return true;
+  }, {
+    message: 'Nature of Disability is required',
+    path: ['disability_description'],
+  }),
 
+  student_study_programmes: z.object({
+    name: z.string().optional(),
+    completion_year: z.string().optional(),
+    level: z.string().optional(),
+    duration: z.coerce.number().optional(),
+    mode_of_study: z.string().optional(),
+    specialization: z.string().optional()
+  }).optional(),
+
+  student_preliminary_infos: z.object( {
+    institution_name: z.string().optional(),
+    institution_type: z.string().optional(),
+    citizenry: z.string().optional(),
+    study_area: z.string().optional(),
+  }),
+ 
  //for reccomendations
   institution_recommendations: z.object({
     recommended: z.string().optional(),
