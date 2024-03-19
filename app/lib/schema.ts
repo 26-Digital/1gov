@@ -86,23 +86,23 @@ export const offenceConvictions = z.object({
  const agreeRadioNo = document.getElementById('agreeRadioNo') as HTMLInputElement;
  const offenseSelectBox = document.getElementById('offenseSelectBox') as HTMLSelectElement;
 
- // Add event listeners to the radio buttons
- if (agreeRadioYes && agreeRadioNo) {
-   agreeRadioYes.addEventListener('change', toggleSelectRequired);
-   agreeRadioNo.addEventListener('change', toggleSelectRequired);
- }
+//  // Add event listeners to the radio buttons
+//  if (agreeRadioYes && agreeRadioNo) {
+//    agreeRadioYes.addEventListener('change', toggleSelectRequired);
+//    agreeRadioNo.addEventListener('change', toggleSelectRequired);
+//  }
 
- function toggleSelectRequired() {
-   if (agreeRadioYes.checked) {
-     // If "Yes" is selected, mark select box as required
-     offenseSelectBox.required = true;
-     offenseSelectBox.classList.add('border-red-500');
-   } else {
-     // If "No" is selected, remove required attribute from select box
-     offenseSelectBox.required = false;
-     offenseSelectBox.classList.remove('border-red-500');
-   }
- }
+//  function toggleSelectRequired() {
+//    if (agreeRadioYes.checked) {
+//      // If "Yes" is selected, mark select box as required
+//      offenseSelectBox.required = true;
+//      offenseSelectBox.classList.add('border-red-500');
+//    } else {
+//      // If "No" is selected, remove required attribute from select box
+//      offenseSelectBox.required = false;
+//      offenseSelectBox.classList.remove('border-red-500');
+//    }
+//  }
 export const teacherRegistrations = z.object({
   /**
    * Capture teacher registration, it should be a disability object.
@@ -177,11 +177,33 @@ export const studentPreliminaryInfos = z.object( {
 
 export const institutionRecommendations = z.object({
   recommended: z.string().optional(),
-  attachment: typeof window === "undefined" ? z.any():
-  z
-  .any()
-  .optional(),
-})
+  attachment: typeof window === "undefined" ? z.any() : z.any().optional(),
+}).refine((data) => {
+  //const teacherRegistrationType = context.parent?.teacherRegistrations?.registration_type;
+  // Check if recommended is 'yes' and registration_type is 'teacher'
+
+  if (data.recommended?.toLowerCase() === 'yes') {
+    // Ensure attachment is provided if recommended is 'yes' and registration_type is 'teacher'
+    return data.attachment !== undefined;
+  }
+
+  // For other cases, return true (no extra validation needed)
+  return true;
+}, {
+  message: 'Recommendation letter is required for teacher registration when recommended is yes',
+  path: ['attachment'],
+});
+
+// const mergedSchema = z.merge(teacherRegistrations, institutionRecommendations)
+//   .refine((data) => {
+//     if (data.registration_type === 'student-teacher' && data.recommended?.toLowerCase() === 'yes') {
+//       // Ensure attachment is provided for teacher registration
+//       return data.attachment !== undefined;
+//     }
+//     // For other cases, return true (no extra validation needed)
+//     return true;
+//   })
+
 
 enum SubjectType {
   MATHS = "mathematics",
@@ -230,7 +252,43 @@ const bioDatasSchema = z.object({
   disability: z.string().optional(),
   disability_description: z.string().optional(),
 });
-
+export const formSchemax = z.object({
+  /**
+   * Application for teacher/stundent registration schema.
+   * Desc: Nested objects, meets backend specification
+   * */
+  teacher_preliminary_infos: teacherPreliminaryInfoSchema,
+  employment_details: employmentDetails,
+  teacher_registrations: teacherRegistrations,
+  offence_convictions: offenceConvictions,
+  attachments: attachments,
+  bio_datas: bioDatasSchema,
+  student_study_programmes: studentStudyProgrammes,
+  student_preliminary_infos: studentPreliminaryInfos,
+  institution_recommendations: z.object({
+    recommended: z.string().optional(),
+    attachment: typeof window === "undefined" ? z.any() : z.any().optional(),
+  }).refine((data) => {
+    //const teacherRegistrationType = context.parent?.teacherRegistrations?.registration_type;
+    // Check if recommended is 'yes' and registration_type is 'teacher'
+  
+    if (data.recommended?.toLowerCase() === 'yes') {
+      // Ensure attachment is provided if recommended is 'yes' and registration_type is 'teacher'
+      return data.attachment !== undefined;
+    }
+  
+    // For other cases, return true (no extra validation needed)
+    return true;
+  }, {
+    message: 'Recommendation letter is required for teacher registration when recommended is yes',
+    path: ['attachment'],
+  }),
+  declarations: z.object({
+    agreement: z.boolean().optional(),
+    signature: z.string().optional(),
+  }), // Culprit, fix and document
+  edu_pro_qualifications: z.array(qualificationSchema).optional(),
+})
 export const formSchema = z.object({
     /**
      * Application for teacher/stundent registration schema.
