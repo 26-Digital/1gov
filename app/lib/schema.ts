@@ -22,6 +22,8 @@ const disabilities = [
   "Cerebral Palsy"
 ] as const;
 
+
+
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_FILE_TYPES = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/msword']
 
@@ -48,6 +50,7 @@ export const studentStudyProgrammes = z.object({
 }).optional()
 
 export const offenceConvictions = z.object({
+  
   /**
    * Capture offence convictions object
   */
@@ -76,7 +79,30 @@ export const offenceConvictions = z.object({
   .any()
   .optional(),
 })
+//validation for radio buttons at offense type
 
+ // Get DOM elements
+ const agreeRadioYes = document.getElementById('agreeRadioYes') as HTMLInputElement;
+ const agreeRadioNo = document.getElementById('agreeRadioNo') as HTMLInputElement;
+ const offenseSelectBox = document.getElementById('offenseSelectBox') as HTMLSelectElement;
+
+ // Add event listeners to the radio buttons
+ if (agreeRadioYes && agreeRadioNo) {
+   agreeRadioYes.addEventListener('change', toggleSelectRequired);
+   agreeRadioNo.addEventListener('change', toggleSelectRequired);
+ }
+
+ function toggleSelectRequired() {
+   if (agreeRadioYes.checked) {
+     // If "Yes" is selected, mark select box as required
+     offenseSelectBox.required = true;
+     offenseSelectBox.classList.add('border-red-500');
+   } else {
+     // If "No" is selected, remove required attribute from select box
+     offenseSelectBox.required = false;
+     offenseSelectBox.classList.remove('border-red-500');
+   }
+ }
 export const teacherRegistrations = z.object({
   /**
    * Capture teacher registration, it should be a disability object.

@@ -1964,7 +1964,7 @@ interface RegistrationFormProps {
                                                                         >
                                                                             <FormItem className="flex items-center space-x-3 space-y-0">
                                                                                 <FormControl>
-                                                                                    <RadioGroupItem value="yes" />
+                                                                                    <RadioGroupItem id="agreeRadioYes" value="yes" />
                                                                                 </FormControl>
                                                                                 <FormLabel className="font-normal">
                                                                                     Yes
@@ -1972,7 +1972,7 @@ interface RegistrationFormProps {
                                                                             </FormItem>
                                                                             <FormItem className="flex items-center space-x-3 space-y-0">
                                                                                 <FormControl>
-                                                                                    <RadioGroupItem value="no" />
+                                                                                    <RadioGroupItem id="agreeRadioNo" value="no" />
                                                                                 </FormControl>
                                                                                 <FormLabel className="font-normal">
                                                                                     No
@@ -1996,7 +1996,7 @@ interface RegistrationFormProps {
                                                                     <FormLabel>Select Offence type</FormLabel>
                                                                     <Select onValueChange={field.onChange} value={field.value}>
                                                                         <FormControl>
-                                                                            <SelectTrigger>
+                                                                            <SelectTrigger  id="offenseSelectBox" >
                                                                                 <SelectValue placeholder="Select Offence type">
                                                                                 </SelectValue>
                                                                             </SelectTrigger>
@@ -2568,7 +2568,7 @@ interface RegistrationFormProps {
                     <Label htmlFor="amount">Amount</Label>
                 </FormLabel>
                 <FormControl>
-                    <Input id="amount" type="number" className="h-9"  readOnly />
+                    <Input id="amount" type="number" className="h-9" readOnly />
                 </FormControl>
             </div>
         </div>
@@ -2650,16 +2650,9 @@ interface RegistrationFormProps {
                 </FormControl>
             </div>
         </div>
-
-        {/* Citizens or Non-Citizens Row */}
-        {/* <div className="flex flex-col col-span-2">
-            <div className="flex space-x-2">
-                <button onClick={handleCitizensAmount}>Citizens</button>
-                <button onClick={handleNonCitizensAmount}>Non-Citizens</button>
-            </div>
-        </div> */}
     </div>
 </div>
+
 
                                 </motion.div>
                             )}
