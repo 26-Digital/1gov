@@ -265,6 +265,46 @@ export const formSchemax = z.object({
   bio_datas: bioDatasSchema,
   student_study_programmes: studentStudyProgrammes,
   student_preliminary_infos: studentPreliminaryInfos,
+ 
+
+//for employment details 
+  employmentDetails: z.object({
+
+    employment_details: z.string().optional(),
+  }).nullable().refine((data) => {
+    if (!data) {
+      return false; // Employment details object is null
+    }
+    
+    return true; 
+  }, {
+    message: 'Employment details cannot be null',
+    path: ['employment_details'],
+  }),
+
+   //for offenses
+   offenceConvictions: z.object({
+    offence_convictions: z.string().optional(),
+    // offence_convictions: typeof window === "undefined" ? z.any() : z.any().optional(),
+  }).refine((data) => {
+    //const teacherRegistrationType = context.parent?.teacherRegistrations?.registration_type;
+    // Check if recommended is 'yes' and registration_type is 'teacher'
+  
+    if (data.offence_convictions?.toLowerCase() === 'yes') {
+      // Ensure attachment is provided if recommended is 'yes' and registration_type is 'teacher'
+      return data.offence_convictions !== undefined;
+    }
+  
+    // For other cases, return true (no extra validation needed)
+    return true;
+  }, {
+    message: 'you are required to select the offence type specified',
+    path: ['offence_convictions'],
+  }),
+
+
+
+ //for reccomendations
   institution_recommendations: z.object({
     recommended: z.string().optional(),
     attachment: typeof window === "undefined" ? z.any() : z.any().optional(),
@@ -283,6 +323,8 @@ export const formSchemax = z.object({
     message: 'Recommendation letter is required for teacher registration when recommended is yes',
     path: ['attachment'],
   }),
+
+  
   declarations: z.object({
     agreement: z.boolean().optional(),
     signature: z.string().optional(),
