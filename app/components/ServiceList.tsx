@@ -12,6 +12,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@radix-ui/react-select";
 import ShadowCard from '../components/ShadowCard';
 import ApplicationForLicenseForm from '../components/ApplicationForLicenseForm';
+import LicenseModal from "./LicenseModal";
 interface ModalProps{
     isOpen: boolean;
     onClose: () => void;
@@ -47,15 +48,19 @@ const ServiceCard: React.FC<ServiceCardProps> = ({title,ministry, serviceFees, v
 const ServiceList: React.FC<ModalProps>= ({ isOpen, onClose}) => {
     const modalClass = isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none';
     const [isRegistrationOpen, setIsRegistrationOpen] = useState(false);
+    const [isLicenseOpen, setIsLicenseOpen] = useState(false);
 
     const handleToggleServiceList = () => {
         setIsRegistrationOpen(!isRegistrationOpen);
     };
+    const handleToggleLicenseModal = () => {
+        setIsLicenseOpen(!isLicenseOpen);
+    };
     const handleCloseLoginServiceList = () => {
         setIsRegistrationOpen(false);
     }
-    const handleCloseDialog = () => {
-
+    const handleCloseLicenseModal = () => {
+        setIsLicenseOpen(false)
     }
     return(
         <div 
@@ -90,14 +95,13 @@ const ServiceList: React.FC<ModalProps>= ({ isOpen, onClose}) => {
                             <input type="text" id="base-input" placeholder="Search by service name or description..." className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"/>
                         </div>
                         <div className="mx-1">
-                                        <ServiceCard title="Application for Teacher registration" ministry="Ministry of Education" serviceFees="Service Fees" verification="EID Verification" path="/dashboard/teacher-registration" onOpen={handleToggleServiceList}/>
-                                        <ServiceCard title="Application for Teacher License" ministry="Ministry of Education" serviceFees="Service Fees" verification="EID Verification" path="/dashboard/teacher-registration"/>
-                                           
-                                            
+                            <ServiceCard title="Application for Teacher registration" ministry="Ministry of Education" serviceFees="Service Fees" verification="EID Verification" path="/dashboard/teacher-registration" onOpen={handleToggleServiceList}/>
+                            <ServiceCard title="Application for Teacher License" ministry="Ministry of Education" serviceFees="Service Fees" verification="EID Verification" path="/dashboard/teacher-registration" onOpen={handleToggleLicenseModal}/>                   
                        </div>
                     </div>
                 </div>
             </div> 
+            <LicenseModal isOpen={isLicenseOpen} onClose={handleCloseLicenseModal}/>
             <ApplicationModal isOpen={isRegistrationOpen} onClose={handleCloseLoginServiceList}/>
         </div>
     );
