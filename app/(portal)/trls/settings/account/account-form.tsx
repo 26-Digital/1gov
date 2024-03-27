@@ -62,10 +62,10 @@ const accountFormSchema = z.object({
     required_error: "Please select a language.",
   }),
   currentPassword: z.string({
-    required_error: "Please select a language.",
+    required_error: "Please enter password.",
   }),
   newPassword: z.string({
-    required_error: "Please select a language.",
+    required_error: "Please enter password.",
   }),
   user: z.string({
     required_error: "Please select a language.",
