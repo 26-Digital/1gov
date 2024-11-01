@@ -1,6 +1,6 @@
-export const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://10.0.25.164:8080/trls-api';
-export const invUrl = process.env.NEXT_PUBLIC_INV_URL ?? 'http://10.0.25.164:8084/trls-api';
-export const licUrl = process.env.NEXT_PUBLIC_LIC_URL ?? 'http://66.179.253.57:8081/api';
+export const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://10.0.26.164:8080/trls-api';
+export const invUrl = process.env.NEXT_PUBLIC_INV_URL ?? 'http://10.0.26.164:8084/trls-api';
+export const licUrl = process.env.NEXT_PUBLIC_LIC_URL ?? 'http://10.0.26.164:8081/api';
 export const authUrl = process.env.NEXT_PUBLIC_AUTH_URL ?? 'https://gateway-cus-acc.gov.bw/auth/login/sms';
 export const emailauthUrl = process.env.NEXT_PUBLIC_EMAIL_AUTH_URL ?? 'https://gateway-cus-acc.gov.bw/auth/login';
 export const iamURL = process.env.NEXT_PUBLIC_IAM_URL ?? 'https://gateway-cus-acc.gov.bw';
