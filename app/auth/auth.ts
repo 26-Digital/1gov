@@ -299,33 +299,44 @@ export async function decryptAccessToken(authResponse: AuthResponse){
   }
 }
 
-export async function storeSessionLegacy(authResponse: AuthResponse){
-  try{
-    const session: Session = {
-      auth: authResponse,
-      expires: new Date(Date.now() + 1800 * 1000).toString(),
-    }
-    const profile = await decryptAccessToken(authResponse)
-    await storeAccessGroups(profile)
-    const expires = new Date(Date.now() + session.auth.expires_in * 1000);
-    const encryptedSession = await encrypt(session)
-    (await cookies()).set("session", encryptedSession, {expires, httpOnly: true});
-    redirect('/trls/home');
-  }catch (error){
-    throw error
-  }
-}
+// export async function storeSessionLegacy(authResponse: AuthResponse){
+//   try{
+//     const session: Session = {
+//       auth: authResponse,
+//       expires: new Date(Date.now() + 1800 * 1000).toString(),
+//     }
+//     const profile = await decryptAccessToken(authResponse)
+//     await storeAccessGroups(profile)
+//     const expires = new Date(Date.now() + session.auth.expires_in * 1000);
+//     const encryptedSession = await encrypt(session)
+//     (await cookies()).set("session", encryptedSession, {expires, httpOnly: true});
+//     redirect('/trls/home');
+//   }catch (error){
+//     throw error
+//   }
+// }
+
+// import { cookies } from 'next/headers'
 
 export async function storeSession(authResponse: AuthResponse) {
   const session: Session = {
     auth: authResponse,
     expires: new Date(Date.now() + 1800 * 1000).toString(),
   }
-  // const profile = await decryptAccessToken(authResponse)
-  // await storeAccessGroups(profile)
+
   const expires = new Date(Date.now() + session.auth.expires_in * 1000)
   const encryptedSession = await encrypt(session)
-  (await cookies()).set("session", encryptedSession, { expires, httpOnly: true })
+
+  // Await the cookies() function
+  const cookieStore = await cookies()
+  cookieStore.set({
+    name: "session",
+    value: encryptedSession,
+    expires,
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax'
+  })
 }
 
 export async function storeAccessGroups(decodedToken: DecodedToken){
