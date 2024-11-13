@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation'
 // import { getCaseById, updateCaseById } from '@/lib/api'
 import { Button } from "@/components/ui/button"
@@ -14,7 +14,8 @@ import { Investigation } from '@/app/lib/types'
 import InfoItem from '@/app/components/InfoItem'
 
 
-export default function EditCasePage({ params }: { params: { slug: string } }) {
+export default function EditCasePage(props: { params: Promise<{ slug: string }> }) {
+  const params = use(props.params);
 
   const router = useRouter()
   const [caseDetails, setCaseDetails] = useState<Investigation | null>(null)
@@ -85,8 +86,8 @@ export default function EditCasePage({ params }: { params: { slug: string } }) {
       };
     });
   };
-  
-  
+
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSaving(true)
@@ -109,7 +110,7 @@ export default function EditCasePage({ params }: { params: { slug: string } }) {
   if (!caseDetails) {
     return <div className="flex justify-center items-center h-screen">Case not found</div>
   }
-  
+
 
   return (
     <div className="container mx-auto px-4 py-8 h-screen flex flex-col">

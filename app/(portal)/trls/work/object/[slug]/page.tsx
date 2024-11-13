@@ -5,12 +5,13 @@ import { getRegById } from "@/app/lib/actions";
 import { AlertCircle, RefreshCw } from "lucide-react";
 import Link from "next/link";
 
-export default async function Page({params}:{params: {slug: string}}){
+export default async function Page(props:{params: Promise<{slug: string}>}) {
+    const params = await props.params;
     const id = await params.slug;
 
     let work;
     let error = null;
-  
+
     try {
     work = await getRegById(id)
 

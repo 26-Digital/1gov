@@ -197,7 +197,7 @@ export async function DeTokenize(authResponse: AuthResponse) {
       auth: authResponse
     };
     const encryptedSession = await encrypt(session);
-    cookies().set("session", encryptedSession, { expires, httpOnly: true });
+    (await cookies()).set("session", encryptedSession, { expires, httpOnly: true });
     
     redirect('/trls/home');
   } catch (error) {
@@ -225,7 +225,7 @@ export async function refreshTokenAction(refreshToken: string): Promise<boolean>
     const session: Session = { auth: newAuthResponse };
     const encryptedSession = await encrypt(session);
     
-    cookies().set("session", encryptedSession, { 
+    (await cookies()).set("session", encryptedSession, { 
       expires, 
       httpOnly: true,
       // secure: process.env.NODE_ENV === 'production',
@@ -255,8 +255,8 @@ export async function updateSession(request: NextRequest) {
   try {
     const decryptPayload = await decrypt(sessionCookie);
     if(decryptPayload === null){
-      cookies().delete("session");
-      cookies().delete("access");
+      (await cookies()).delete("session");
+      (await cookies()).delete("access");
       return null;
     }
     let parsed = decryptPayload as Session; 
@@ -309,7 +309,7 @@ export async function storeSessionLegacy(authResponse: AuthResponse){
     await storeAccessGroups(profile)
     const expires = new Date(Date.now() + session.auth.expires_in * 1000);
     const encryptedSession = await encrypt(session)
-    cookies().set("session", encryptedSession, {expires, httpOnly: true});
+    (await cookies()).set("session", encryptedSession, {expires, httpOnly: true});
     redirect('/trls/home');
   }catch (error){
     throw error
@@ -325,7 +325,7 @@ export async function storeSession(authResponse: AuthResponse) {
   // await storeAccessGroups(profile)
   const expires = new Date(Date.now() + session.auth.expires_in * 1000)
   const encryptedSession = await encrypt(session)
-  cookies().set("session", encryptedSession, { expires, httpOnly: true })
+  (await cookies()).set("session", encryptedSession, { expires, httpOnly: true })
 }
 
 export async function storeAccessGroups(decodedToken: DecodedToken){
@@ -339,7 +339,7 @@ export async function storeAccessGroups(decodedToken: DecodedToken){
       userid: decodedToken.preferred_username,
     }
     const encryptedAccessGroup = await encrypt(access_group);
-    cookies().set('access', encryptedAccessGroup, {expires, httpOnly: true});
+    (await cookies()).set('access', encryptedAccessGroup, {expires, httpOnly: true});
   } catch(error){
     throw error;
   }
@@ -351,7 +351,7 @@ export async function getTrlsPersonas(roles: string[]): Promise<UserRole[]> {
 
 
 export async function getAccessGroups(): Promise<AccessGroup | null>{
-  const encryptedAccessGroup = cookies().get("access")?.value;
+  const encryptedAccessGroup = (await cookies()).get("access")?.value;
   if (!encryptedAccessGroup) return null;
   const decryptedPayload = await decrypt(encryptedAccessGroup);
   if (decryptedPayload === null) {
@@ -389,7 +389,7 @@ export async function updateAccessGroup(newCurrentPersona: string): Promise<void
     const expires = new Date(Date.now() + 30 * 60 * 1000);
 
     // Update the cookie
-    cookies().set('access', encryptedAccessGroup, { expires, httpOnly: true });
+    (await cookies()).set('access', encryptedAccessGroup, { expires, httpOnly: true });
     redirect('/trls/home')
   } catch (error) {
     console.error('Error updating access group:', error);
@@ -398,14 +398,14 @@ export async function updateAccessGroup(newCurrentPersona: string): Promise<void
 }
 
 export async function logout() {
-  cookies().set("session", "", { expires: new Date(0) });
-  cookies().set("access", "", { expires: new Date(0) });
+  (await cookies()).set("session", "", { expires: new Date(0) });
+  (await cookies()).set("access", "", { expires: new Date(0) });
   revalidatePath('/trls/home');
   redirect('/welcome');
 }
 
 export async function getSession(): Promise<Session | null> {
-  const encryptedSession = cookies().get("session")?.value;
+  const encryptedSession = (await cookies()).get("session")?.value;
   
   if (!encryptedSession) return null;
   const decryptedPayload = await decrypt(encryptedSession);

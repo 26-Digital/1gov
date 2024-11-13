@@ -5,7 +5,8 @@ import Link from "next/link";
 import { RefreshCw, AlertCircle } from "lucide-react";
 import ActivityView from "@/app/components/record/ActivityViewer";
 
-export default async function Page({ params }: { params: { slug: string } }) {
+export default async function Page(props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
   const id = params.slug;
   let response;
   let error = null;

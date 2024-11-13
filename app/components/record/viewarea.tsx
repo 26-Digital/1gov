@@ -596,7 +596,7 @@ const DynamicTabs: React.FC<DynamicTabsProps> = ({tabs}) => {
     )
 }
 
-const WorkArea: React.FC<Work> = (data, userRole) => {
+const WorkArea: React.FC<Work> = ({data, userRole}) => {
     const { prev_status, next_status, rej_status, bar_status, inv_status } = getNextStatus(data?.userRole);
     const router = useRouter()
     const [activeTab, setActiveTab] = useState(1);
@@ -605,7 +605,7 @@ const WorkArea: React.FC<Work> = (data, userRole) => {
     }
     const { toast } = useToast()
     const handleStatusChange=async (id:string, status:string)=>{
-        const res = await UpdateStatus(data?.data?.teacher_preliminary_infos.national_id, status, '')
+        const res = await UpdateStatus(data?.teacher_preliminary_infos.national_id, status, '')
         router.prefetch('/trls/home')
         if(!res){
             toast({
@@ -748,14 +748,14 @@ const WorkArea: React.FC<Work> = (data, userRole) => {
         <ScrollArea className='h-screen'>
             <Card className='mx-8 my-2'>
             <div className=''>
-                {activeTab===1 && <Preliminary {...data?.data}/>}
-                {activeTab===2 && <Bio {...data?.data?.bio_datas}/>}
-                {activeTab===3 && <Employment {...data?.data?.employment_details}/>}
-                {activeTab===4 && <Qualifications {...data?.data}/>}
-                {activeTab===5 && <Disability {...data?.data?.bio_datas}/>}
-                {activeTab===6 && <Offence {...data?.data?.offence_convictions}/>}
+                {activeTab===1 && <Preliminary {...data}/>}
+                {activeTab===2 && <Bio {...data?.bio_datas}/>}
+                {activeTab===3 && <Employment {...data?.employment_details}/>}
+                {activeTab===4 && <Qualifications {...data}/>}
+                {activeTab===5 && <Disability {...data?.bio_datas}/>}
+                {activeTab===6 && <Offence {...data?.offence_convictions}/>}
                 {activeTab===7 && <Attachments/>}
-                {activeTab===8 && <Declaration {...data?.data?.declarations}/>}
+                {activeTab===8 && <Declaration {...data?.declarations}/>}
             </div>
             <div className='p-1 mx-8 mb-2'>
                 <div className='flex space-x-2 justify-end'>
@@ -888,7 +888,7 @@ const WorkArea: React.FC<Work> = (data, userRole) => {
                                             <Button
                                             className=''
                                             type='submit'
-                                            // onClick={async () => await handleStatusChange(data?.data?.teacher_preliminary_infos.national_id, status)}
+                                            // onClick={async () => await handleStatusChange(data?.teacher_preliminary_infos.national_id, status)}
                                             >Submit</Button>
                                         </AlertDialogFooter>
                                 </form>
@@ -911,7 +911,7 @@ const WorkArea: React.FC<Work> = (data, userRole) => {
                             <AlertDialogCancel>Cancel</AlertDialogCancel>
                             <AlertDialogAction
                             className='bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300'
-                            onClick={async () => await handleStatusChange(data?.data?.teacher_preliminary_infos.national_id, status)}
+                            onClick={async () => await handleStatusChange(data?.teacher_preliminary_infos.national_id, status)}
                             >Continue</AlertDialogAction>
                             </AlertDialogFooter>
                         </AlertDialogContent>

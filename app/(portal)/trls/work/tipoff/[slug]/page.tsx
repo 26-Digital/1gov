@@ -4,7 +4,8 @@ import Link from "next/link";
 import { RefreshCw } from "lucide-react";
 import TipOffViewer from '@/app/components/record/TipOffViewer';
 
-export default async function Page({ params }: { params: { slug: string } }) {
+export default async function Page(props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
   const id = params.slug;
   let tipoff;
   let error = null;

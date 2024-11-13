@@ -4,7 +4,8 @@ import { getComplaintsById } from "@/app/lib/actions";
 import Link from "next/link";
 import { RefreshCw } from "lucide-react";
 
-export default async function Page({ params }: { params: { slug: string } }) {
+export default async function Page(props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
   const id = params.slug;
   let inv;
   let error = null;

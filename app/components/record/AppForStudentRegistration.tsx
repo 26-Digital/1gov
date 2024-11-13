@@ -61,7 +61,7 @@ export const getNextStatus = (userRole: string): { prev_status: string | null; i
     const statusTransition = statusTransitions[userRole.toLowerCase()] || statusTransitions['Default'];
     return statusTransition;
 };
-export const ApplicationForStudentRegistration: React.FC<Work> = (data, userRole) => {
+export const ApplicationForStudentRegistration: React.FC<Work> = ({data, userRole}) => {
     const { prev_status, next_status, rej_status, bar_status, inv_status, recommend, endorse, approve_label, reject_label, recommend_label, endorse_label } = getNextStatus(data?.userRole);
     const [previousStep, setPreviousStep] = useState(0);
     const [currentStep, setCurrentStep] = useState(0);
@@ -89,7 +89,7 @@ export const ApplicationForStudentRegistration: React.FC<Work> = (data, userRole
     }
     const handleStatusChange=async (id:string, status:string)=>{
         if(status){
-            const res = await UpdateStatus(data?.data?.teacher_registrations?.national_id, status, '')
+            const res = await UpdateStatus(data?.teacher_registrations?.national_id, status, '')
     
             router.prefetch('/trls/home')
             if(res !== 201){
@@ -143,7 +143,7 @@ export const ApplicationForStudentRegistration: React.FC<Work> = (data, userRole
         }
       })
       async function onSubmit(record: z.infer<typeof FormSchema>) {
-        const res = await UpdateStatus(data?.data?.teacher_registrations?.national_id, record.status, '');
+        const res = await UpdateStatus(data?.teacher_registrations?.national_id, record.status, '');
         if(!res){
             toast({
                 title: "Failed!!!",
@@ -167,7 +167,7 @@ export const ApplicationForStudentRegistration: React.FC<Work> = (data, userRole
       const evidence = form.watch('evidence')
       const handleEndorsementStatusUpdate=async (id:string, status:string)=>{
         if(status){
-            const res = await UpdateEndorsementStatus(data?.data?.teacher_registrations?.national_id, status)
+            const res = await UpdateEndorsementStatus(data?.teacher_registrations?.national_id, status)
             router.prefetch('/trls/home')
             if(res !== 201){
                 toast({
@@ -220,7 +220,7 @@ export const ApplicationForStudentRegistration: React.FC<Work> = (data, userRole
                                 transition={{duration: 0.3, ease: 'easeInOut'}}
                                 >
                                 <div className="border md:h-96 h-96 w-full p-3 rounded-lg mb-2 mr-1">
-                                    <StudentPreliminary {...data?.data}/>
+                                    <StudentPreliminary {...data}/>
                                 </div>
                             </motion.div>
                         )}
@@ -231,7 +231,7 @@ export const ApplicationForStudentRegistration: React.FC<Work> = (data, userRole
                                 transition={{duration: 0.3, ease: 'easeInOut'}}
                                 >
                                 <div className="border md:h-96 h-96 p-3 rounded-lg mb-2 mr-1">
-                                    <Bio {...data?.data}/>
+                                    <Bio {...data}/>
                                 </div>
                             </motion.div>
                         )}
@@ -242,7 +242,7 @@ export const ApplicationForStudentRegistration: React.FC<Work> = (data, userRole
                                 transition={{duration: 0.3, ease: 'easeInOut'}}
                                 >
                                 <div className="border md:h-96 h-96 p-3 rounded-lg mb-2 mr-1">
-                                    <StudyProgramme {...data?.data}/>
+                                    <StudyProgramme {...data}/>
                                 </div>
                             </motion.div>
                         )}
@@ -253,7 +253,7 @@ export const ApplicationForStudentRegistration: React.FC<Work> = (data, userRole
                                 transition={{duration: 0.3, ease: 'easeInOut'}}
                                 >
                                 <div className="border md:h-96 h-96 p-3 rounded-lg mb-2 mr-1">
-                                    <Declaration {...data?.data}/>
+                                    <Declaration {...data}/>
                                 </div>
                             </motion.div>
                         )}
@@ -264,7 +264,7 @@ export const ApplicationForStudentRegistration: React.FC<Work> = (data, userRole
                                 transition={{duration: 0.3, ease: 'easeInOut'}}
                                 >
                                 <div className="border md:h-96 h-96 p-3 rounded-lg mb-2 mr-1">
-                                    <Recommendation {...data?.data}/>
+                                    <Recommendation {...data}/>
                                 </div>
                             </motion.div>
                         )}
@@ -275,7 +275,7 @@ export const ApplicationForStudentRegistration: React.FC<Work> = (data, userRole
                                 transition={{duration: 0.3, ease: 'easeInOut'}}
                                 >
                                 <div className="border md:h-96 h-96 p-3 rounded-lg mb-2 mr-1">
-                                    <Payment {...data?.data}/>
+                                    <Payment {...data}/>
                                 </div>
                             </motion.div>
                         )}
@@ -303,37 +303,37 @@ export const ApplicationForStudentRegistration: React.FC<Work> = (data, userRole
                                                 <AccordionItem value="item-1">
                                                     <AccordionTrigger>PRELIMINARY INFORMATION</AccordionTrigger>
                                                     <AccordionContent>
-                                                        <StudentPreliminary {...data?.data}/>
+                                                        <StudentPreliminary {...data}/>
                                                     </AccordionContent>
                                                 </AccordionItem>
                                                 <AccordionItem value="item-2">
                                                     <AccordionTrigger>PROFILE INFO</AccordionTrigger>
                                                     <AccordionContent>
-                                                        <Bio {...data?.data}/>
+                                                        <Bio {...data}/>
                                                     </AccordionContent>
                                                 </AccordionItem>
                                                 <AccordionItem value="item-3">
                                                     <AccordionTrigger>STUDY PROGRAMME</AccordionTrigger>
                                                     <AccordionContent>
-                                                        <StudyProgramme {...data?.data}/>
+                                                        <StudyProgramme {...data}/>
                                                     </AccordionContent>
                                                 </AccordionItem>
                                                 <AccordionItem value="item-4">
                                                     <AccordionTrigger>DECLARATION</AccordionTrigger>
                                                     <AccordionContent>
-                                                        <Declaration {...data?.data}/>
+                                                        <Declaration {...data}/>
                                                     </AccordionContent>
                                                 </AccordionItem>
                                                 <AccordionItem value="item-5">
                                                     <AccordionTrigger>RECOMMENDATION</AccordionTrigger>
                                                     <AccordionContent>
-                                                        <Recommendation {...data?.data}/>
+                                                        <Recommendation {...data}/>
                                                     </AccordionContent>
                                                 </AccordionItem>
                                                 <AccordionItem value="item-6">
                                                     <AccordionTrigger>PAYMENT</AccordionTrigger>
                                                     <AccordionContent>
-                                                        <Payment {...data?.data}/>
+                                                        <Payment {...data}/>
                                                     </AccordionContent>
                                                 </AccordionItem>
                                                 <AccordionItem value="item-7">
@@ -487,7 +487,7 @@ export const ApplicationForStudentRegistration: React.FC<Work> = (data, userRole
                                                     <Button
                                                     className=''
                                                     type='submit'
-                                                    // onClick={async () => await handleStatusChange(data?.data?.teacher_preliminary_infos.national_id, status)}
+                                                    // onClick={async () => await handleStatusChange(data?.teacher_preliminary_infos.national_id, status)}
                                                     >Submit</Button>
                                                 </AlertDialogFooter>
                                                 </form>
@@ -511,7 +511,7 @@ export const ApplicationForStudentRegistration: React.FC<Work> = (data, userRole
                                             <AlertDialogCancel>Cancel</AlertDialogCancel>
                                             <AlertDialogAction
                                                 className='bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300'
-                                                onClick={async () => await handleStatusChange(data?.data?.teacher_registrations?.national_id, next_status!)}
+                                                onClick={async () => await handleStatusChange(data?.teacher_registrations?.national_id, next_status!)}
                                                 >Continue</AlertDialogAction>
                                             </AlertDialogFooter>
                                 </AlertDialogContent>
@@ -533,7 +533,7 @@ export const ApplicationForStudentRegistration: React.FC<Work> = (data, userRole
                                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                                                 <AlertDialogAction
                                                     className='bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300'
-                                                    onClick={async () => await handleEndorsementStatusUpdate(data?.data?.teacher_registrations?.national_id, recommend!)}
+                                                    onClick={async () => await handleEndorsementStatusUpdate(data?.teacher_registrations?.national_id, recommend!)}
                                                     >Continue</AlertDialogAction>
                                                 </AlertDialogFooter>
                                     </AlertDialogContent>
@@ -555,7 +555,7 @@ export const ApplicationForStudentRegistration: React.FC<Work> = (data, userRole
                                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                                                 <AlertDialogAction
                                                     className='bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300'
-                                                    onClick={async () => await handleEndorsementStatusUpdate(data?.data?.teacher_registrations?.national_id, endorse!)}
+                                                    onClick={async () => await handleEndorsementStatusUpdate(data?.teacher_registrations?.national_id, endorse!)}
                                                     >Continue</AlertDialogAction>
                                                 </AlertDialogFooter>
                                     </AlertDialogContent>

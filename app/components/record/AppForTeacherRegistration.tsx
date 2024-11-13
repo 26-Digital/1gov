@@ -30,10 +30,6 @@ import { Payment } from "./components/payments";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-interface Work{
-    data: Props,
-    userRole: string | '',
-}
 
 const items = [
     {
@@ -65,8 +61,12 @@ export const getNextStatus = (userRole: string): { prev_status: string | null; i
     const statusTransition = statusTransitions[userRole.toLowerCase()] || statusTransitions['Default'];
     return statusTransition;
 };
+interface Work{
+    data: Props,
+    userRole: string | '',
+}
 
-export const ApplicationForTeacherRegistration: React.FC<Work> = (data, userRole) => {
+const ApplicationForTeacherRegistration: React.FC<Work> = ({data, userRole}) => {
     const { prev_status, next_status, rej_status, bar_status, inv_status, recommend, endorse, approve_label, reject_label, recommend_label, endorse_label } = getNextStatus(data?.userRole);
     const [previousStep, setPreviousStep] = useState(0);
     const [currentStep, setCurrentStep] = useState(0);
@@ -96,7 +96,7 @@ export const ApplicationForTeacherRegistration: React.FC<Work> = (data, userRole
 
     const handleStatusChange=async (id:string, status:string)=>{
         if(status){
-            const res = await UpdateStatus(data?.data?.teacher_registrations?.national_id, status, '')
+            const res = await UpdateStatus(data?.teacher_registrations?.national_id, status, '')
     
             router.prefetch('/trls/home')
             if(res !== 201){
@@ -152,7 +152,7 @@ export const ApplicationForTeacherRegistration: React.FC<Work> = (data, userRole
         }
       })
     async function onSubmit(record: z.infer<typeof FormSchema>) {
-        const res = await UpdateStatus(data?.data?.teacher_registrations?.national_id, record.status, '');
+        const res = await UpdateStatus(data?.teacher_registrations?.national_id, record.status, '');
         if(!res){
             toast({
                 title: "Failed!!!",
@@ -178,7 +178,7 @@ export const ApplicationForTeacherRegistration: React.FC<Work> = (data, userRole
 
     const handleEndorsementStatusUpdate=async (id:string, status:string)=>{
         if(status){
-            const res = await UpdateEndorsementStatus(data?.data?.teacher_registrations?.national_id, status)
+            const res = await UpdateEndorsementStatus(data?.teacher_registrations?.national_id, status)
             router.prefetch('/trls/home')
             if(res !== 201){
                 toast({
@@ -232,7 +232,7 @@ export const ApplicationForTeacherRegistration: React.FC<Work> = (data, userRole
                                 transition={{duration: 0.3, ease: 'easeInOut'}}
                                 >
                                 <div className="border md:h-96 h-96 w-full p-3 rounded-lg mb-2 mr-1">
-                                    <Preliminary {...data?.data}/>
+                                    <Preliminary {...data}/>
                                 </div>
                             </motion.div>
                         )}
@@ -243,7 +243,7 @@ export const ApplicationForTeacherRegistration: React.FC<Work> = (data, userRole
                                 transition={{duration: 0.3, ease: 'easeInOut'}}
                                 >
                                 <div className="border md:h-96 h-96 p-3 rounded-lg mb-2 mr-1">
-                                    <Bio {...data?.data}/>
+                                    <Bio {...data}/>
                                 </div>
                             </motion.div>
                         )}
@@ -254,7 +254,7 @@ export const ApplicationForTeacherRegistration: React.FC<Work> = (data, userRole
                                 transition={{duration: 0.3, ease: 'easeInOut'}}
                                 >
                                 <div className="border md:h-96 h-96 p-3 rounded-lg mb-2 mr-1">
-                                    <Employment {...data?.data}/>
+                                    <Employment {...data}/>
                                 </div>
                             </motion.div>
                         )}
@@ -265,7 +265,7 @@ export const ApplicationForTeacherRegistration: React.FC<Work> = (data, userRole
                                 transition={{duration: 0.3, ease: 'easeInOut'}}
                                 >
                                 <div className="border md:h-96 h-96 p-3 rounded-lg mb-2 mr-1">
-                                    <Qualifications {...data?.data}/>
+                                    <Qualifications {...data}/>
                                 </div>
                             </motion.div>
                         )}
@@ -276,7 +276,7 @@ export const ApplicationForTeacherRegistration: React.FC<Work> = (data, userRole
                                 transition={{duration: 0.3, ease: 'easeInOut'}}
                                 >
                                 <div className="border md:h-96 h-96 p-3 rounded-lg mb-2 mr-1">
-                                    <Disability {...data?.data}/>
+                                    <Disability {...data}/>
                                 </div>
                             </motion.div>
                         )}
@@ -287,7 +287,7 @@ export const ApplicationForTeacherRegistration: React.FC<Work> = (data, userRole
                                 transition={{duration: 0.3, ease: 'easeInOut'}}
                                 >
                                 <div className="border md:h-96 h-96 p-3 rounded-lg mb-2 mr-1">
-                                    <Offence {...data?.data}/>
+                                    <Offence {...data}/>
                                 </div>
                             </motion.div>
                         )}
@@ -298,7 +298,7 @@ export const ApplicationForTeacherRegistration: React.FC<Work> = (data, userRole
                                 transition={{duration: 0.3, ease: 'easeInOut'}}
                                 >
                                 <div className="border md:h-96 h-96 p-3 rounded-lg mb-2 mr-1">
-                                    <Attachments {...data?.data}/>
+                                    <Attachments {...data}/>
                                 </div>
                             </motion.div>
                         )}
@@ -309,7 +309,7 @@ export const ApplicationForTeacherRegistration: React.FC<Work> = (data, userRole
                                 transition={{duration: 0.3, ease: 'easeInOut'}}
                                 >
                                 <div className="border md:h-96 h-96 p-3 rounded-lg mb-2 mr-1">
-                                <Declaration {...data?.data}/>
+                                <Declaration {...data}/>
                                 </div>
                             </motion.div>
                         )}
@@ -320,7 +320,7 @@ export const ApplicationForTeacherRegistration: React.FC<Work> = (data, userRole
                                 transition={{duration: 0.3, ease: 'easeInOut'}}
                                 >
                                 <div className="border md:h-96 h-96 p-3 rounded-lg mb-2 mr-1">
-                                    <Payment {...data?.data}/>
+                                    <Payment {...data}/>
                                 </div>
                             </motion.div>
                         )}
@@ -348,55 +348,55 @@ export const ApplicationForTeacherRegistration: React.FC<Work> = (data, userRole
                                                 <AccordionItem value="item-1">
                                                     <AccordionTrigger>PRELIMINARY INFORMATION</AccordionTrigger>
                                                     <AccordionContent>
-                                                        <Preliminary {...data?.data}/>
+                                                        <Preliminary {...data}/>
                                                     </AccordionContent>
                                                 </AccordionItem>
                                                 <AccordionItem value="item-2">
                                                     <AccordionTrigger>PROFILE INFO</AccordionTrigger>
                                                     <AccordionContent>
-                                                        <Bio {...data?.data}/>
+                                                        <Bio {...data}/>
                                                     </AccordionContent>
                                                 </AccordionItem>
                                                 <AccordionItem value="item-3">
                                                     <AccordionTrigger>EMPLOYMENT DETAILS</AccordionTrigger>
                                                     <AccordionContent>
-                                                        <Employment {...data?.data}/>
+                                                        <Employment {...data}/>
                                                     </AccordionContent>
                                                 </AccordionItem>
                                                 <AccordionItem value="item-4">
                                                     <AccordionTrigger>QUALIFICATIONS</AccordionTrigger>
                                                     <AccordionContent>
-                                                        <Qualifications {...data?.data}/>
+                                                        <Qualifications {...data}/>
                                                     </AccordionContent>
                                                 </AccordionItem>
                                                 <AccordionItem value="item-5">
                                                     <AccordionTrigger>DISABILITY</AccordionTrigger>
                                                     <AccordionContent>
-                                                        <Disability {...data?.data}/>
+                                                        <Disability {...data}/>
                                                     </AccordionContent>
                                                 </AccordionItem>
                                                 <AccordionItem value="item-6">
                                                     <AccordionTrigger>OFFENCE</AccordionTrigger>
                                                     <AccordionContent>
-                                                        <Offence {...data?.data}/>
+                                                        <Offence {...data}/>
                                                     </AccordionContent>
                                                 </AccordionItem>
                                                 <AccordionItem value="item-7">
                                                     <AccordionTrigger>ATTACHMENTS</AccordionTrigger>
                                                     <AccordionContent>
-                                                        <Attachments {...data?.data}/>
+                                                        <Attachments {...data}/>
                                                     </AccordionContent>
                                                 </AccordionItem>
                                                 <AccordionItem value="item-8">
                                                     <AccordionTrigger>DECLARATION</AccordionTrigger>
                                                     <AccordionContent>
-                                                        <Declaration {...data?.data}/>
+                                                        <Declaration {...data}/>
                                                     </AccordionContent>
                                                 </AccordionItem>
                                                 <AccordionItem value="item-9">
                                                     <AccordionTrigger>PAYMENT</AccordionTrigger>
                                                     <AccordionContent>
-                                                        <Payment {...data?.data}/>
+                                                        <Payment {...data}/>
                                                     </AccordionContent>
                                                 </AccordionItem>
                                                 <AccordionItem value="item-10">
@@ -550,7 +550,7 @@ export const ApplicationForTeacherRegistration: React.FC<Work> = (data, userRole
                                                     <Button
                                                     className=''
                                                     type='submit'
-                                                    // onClick={async () => await handleStatusChange(data?.data?.teacher_preliminary_infos.national_id, status)}
+                                                    // onClick={async () => await handleStatusChange(data?.teacher_preliminary_infos.national_id, status)}
                                                     >Submit</Button>
                                                 </AlertDialogFooter>
                                                 </form>
@@ -574,7 +574,7 @@ export const ApplicationForTeacherRegistration: React.FC<Work> = (data, userRole
                                                         <AlertDialogCancel>Cancel</AlertDialogCancel>
                                                         <AlertDialogAction
                                                             className='bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300'
-                                                            onClick={async () => await handleStatusChange(data?.data?.teacher_registrations?.national_id, next_status!)}
+                                                            onClick={async () => await handleStatusChange(data?.teacher_registrations?.national_id, next_status!)}
                                                             >Continue</AlertDialogAction>
                                                         </AlertDialogFooter>
                                             </AlertDialogContent>
@@ -596,7 +596,7 @@ export const ApplicationForTeacherRegistration: React.FC<Work> = (data, userRole
                                                             <AlertDialogCancel>Cancel</AlertDialogCancel>
                                                             <AlertDialogAction
                                                                 className='bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300'
-                                                                onClick={async () => await handleEndorsementStatusUpdate(data?.data?.teacher_registrations?.national_id, recommend!)}
+                                                                onClick={async () => await handleEndorsementStatusUpdate(data?.teacher_registrations?.national_id, recommend!)}
                                                                 >Continue</AlertDialogAction>
                                                             </AlertDialogFooter>
                                                 </AlertDialogContent>
@@ -618,7 +618,7 @@ export const ApplicationForTeacherRegistration: React.FC<Work> = (data, userRole
                                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                                                 <AlertDialogAction
                                                     className='bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300'
-                                                    onClick={async () => await handleEndorsementStatusUpdate(data?.data?.teacher_registrations?.national_id, endorse!)}
+                                                    onClick={async () => await handleEndorsementStatusUpdate(data?.teacher_registrations?.national_id, endorse!)}
                                                     >Continue</AlertDialogAction>
                                                 </AlertDialogFooter>
                                     </AlertDialogContent>
@@ -631,3 +631,5 @@ export const ApplicationForTeacherRegistration: React.FC<Work> = (data, userRole
         </div>
     )
 }
+
+export default ApplicationForTeacherRegistration;

@@ -9,7 +9,7 @@ interface Work{
     userRole: string
 }
 
-const CaseDetails: React.FC<Work> = (data,userRole) => {
+const CaseDetails: React.FC<Work> = ({data,userRole}) => {
   return (       
     <>  
         <div className="items-start bg-gray-50 justify-start h-dvh w-1/4">
@@ -26,8 +26,8 @@ const CaseDetails: React.FC<Work> = (data,userRole) => {
                     </div>
                     <div className='font-sans text-white text-lg'>
                         <a href="#">
-                            <p>{data?.data?.teacher_registrations?.national_id}</p>
-                            <h5 className="mb-2 tracking-tight">{data?.data?.teacher_registrations?.registration_type}</h5>
+                            <p>{data?.teacher_registrations?.national_id}</p>
+                            <h5 className="mb-2 tracking-tight">{data?.teacher_registrations?.registration_type}</h5>
                         </a>
                     </div>
                 </div>
@@ -45,24 +45,24 @@ const CaseDetails: React.FC<Work> = (data,userRole) => {
                 </div>
                 <div className='flex space-x-3'>
                     <h1 className='text-sm text-gray-500'>Status</h1>
-                    <Badge className="flex w-fit"><h1 className='text-nowrap'>{data?.data?.teacher_registrations?.reg_status}</h1></Badge>
+                    <Badge className="flex w-fit"><h1 className='text-nowrap'>{data?.teacher_registrations?.reg_status}</h1></Badge>
                 </div>
                 {mgt.includes(data?.userRole) && <div className='flex space-x-3'>
                     <h1 className='text-sm text-gray-500'>Status</h1>
-                    <Badge className="w-fit"><h1 className='text-nowrap'>{data?.data?.teacher_registrations?.endorsement_status}</h1></Badge>
+                    <Badge className="w-fit"><h1 className='text-nowrap'>{data?.teacher_registrations?.endorsement_status}</h1></Badge>
                 </div>}
                 <div className='flex space-x-9'>
                     <h1 className='text-sm text-gray-500'>Created</h1>
                     <div className=''>
-                        <h1 className='text-xs text-sky-600'>{data?.data?.bio_datas?.forenames} {data?.data?.bio_datas?.surname}</h1>
-                        <h1 className='text-xs font-thin'>{data?.data?.teacher_registrations?.created_at}</h1>
+                        <h1 className='text-xs text-sky-600'>{data?.bio_datas?.forenames} {data?.bio_datas?.surname}</h1>
+                        <h1 className='text-xs font-thin'>{data?.teacher_registrations?.created_at}</h1>
                     </div>
                 </div>
                 <div className='flex space-x-9'>
                     <h1 className='text-sm text-gray-500'>Updated</h1>
                     <div className=''>
-                        <h1 className='text-xs text-sky-600'>{data?.data?.bio_datas?.forenames} {data?.data?.bio_datas?.surname}</h1>
-                        <h1 className='text-xs font-thin'>{data?.data?.teacher_registrations?.updated_at}</h1>
+                        <h1 className='text-xs text-sky-600'>{data?.bio_datas?.forenames} {data?.bio_datas?.surname}</h1>
+                        <h1 className='text-xs font-thin'>{data?.teacher_registrations?.updated_at}</h1>
                     </div>
                 </div>
             </div>

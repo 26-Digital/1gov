@@ -103,13 +103,13 @@ const items = [
     },
   ] as const
 
-const WorkArea: React.FC<Work> = (data, userRole) => {
+const WorkArea: React.FC<Work> = ({data, userRole}) => {
     const { prev_status, next_status, rej_status, bar_status, inv_status, recommend, endorse } = getNextStatus(data?.userRole);
     const router = useRouter()
     const { toast } = useToast()
     const handleStatusChange=async (id:string, status:string)=>{
         if(status){
-            const res = await UpdateStatus(data?.data?.teacher_registrations?.national_id, status,'')
+            const res = await UpdateStatus(data?.teacher_registrations?.national_id, status,'')
     
             router.prefetch('/trls/home')
             if(res !== 201){
@@ -143,7 +143,7 @@ const WorkArea: React.FC<Work> = (data, userRole) => {
 
     const handleEndorsementStatusUpdate=async (id:string, status:string)=>{
         if(status){
-            const res = await UpdateEndorsementStatus(data?.data?.teacher_registrations?.national_id, status)
+            const res = await UpdateEndorsementStatus(data?.teacher_registrations?.national_id, status)
             router.prefetch('/trls/home')
             if(res !== 201){
                 toast({
@@ -197,7 +197,7 @@ const WorkArea: React.FC<Work> = (data, userRole) => {
         }
       })
       async function onSubmit(record: z.infer<typeof FormSchema>) {
-        const res = await UpdateStatus(data?.data?.teacher_registrations?.national_id, record.status,'');
+        const res = await UpdateStatus(data?.teacher_registrations?.national_id, record.status,'');
         if(!res){
             toast({
                 title: "Failed!!!",
@@ -223,52 +223,52 @@ const WorkArea: React.FC<Work> = (data, userRole) => {
         <div className="flex-row w-full font-sans items-start h-lvh rounded bg-gray-50">
             <Tabs defaultValue='bio' className='w-full'>
                 <TabsList className='flex'>
-                    {data?.data?.teacher_preliminary_infos && <TabsTrigger value='preliminary'>Preliminary</TabsTrigger>}
-                    {data?.data?.student_preliminary_infos && <TabsTrigger value='student-preliminary'>Preliminary</TabsTrigger>}
-                    {data?.data?.bio_datas && <TabsTrigger value='bio'>Bio</TabsTrigger>}
-                    {data?.data?.employment_details && <TabsTrigger value='employment'>Employment</TabsTrigger>}
-                    {data?.data?.student_study_programmes && <TabsTrigger value='study-programme'>Study Programmes</TabsTrigger>}
-                    {data?.data?.edu_pro_qualifications && <TabsTrigger value='qualifications'>Qualifications</TabsTrigger>}
-                    {data?.data?.bio_datas.disability && <TabsTrigger value='disability'>Disability</TabsTrigger>}
-                    {data?.data?.offence_convictions && <TabsTrigger value='offence'>Offence</TabsTrigger>}
-                    {data?.data?.institution_recommendations && <TabsTrigger value='recommendation'>Recommendations</TabsTrigger>}
-                    {data?.data?.attachments && <TabsTrigger value='attachments'>Attachments</TabsTrigger>}
-                    {data?.data?.declarations && <TabsTrigger value='declaration'>Declaration</TabsTrigger>}
+                    {data?.teacher_preliminary_infos && <TabsTrigger value='preliminary'>Preliminary</TabsTrigger>}
+                    {data?.student_preliminary_infos && <TabsTrigger value='student-preliminary'>Preliminary</TabsTrigger>}
+                    {data?.bio_datas && <TabsTrigger value='bio'>Bio</TabsTrigger>}
+                    {data?.employment_details && <TabsTrigger value='employment'>Employment</TabsTrigger>}
+                    {data?.student_study_programmes && <TabsTrigger value='study-programme'>Study Programmes</TabsTrigger>}
+                    {data?.edu_pro_qualifications && <TabsTrigger value='qualifications'>Qualifications</TabsTrigger>}
+                    {data?.bio_datas.disability && <TabsTrigger value='disability'>Disability</TabsTrigger>}
+                    {data?.offence_convictions && <TabsTrigger value='offence'>Offence</TabsTrigger>}
+                    {data?.institution_recommendations && <TabsTrigger value='recommendation'>Recommendations</TabsTrigger>}
+                    {data?.attachments && <TabsTrigger value='attachments'>Attachments</TabsTrigger>}
+                    {data?.declarations && <TabsTrigger value='declaration'>Declaration</TabsTrigger>}
                 </TabsList>
                 <ScrollArea className='h-lvh'>
                     <Card className='mx-8 my-2'>    
                         <TabsContent value='preliminary'>
-                            <Preliminary {...data?.data}/>
+                            <Preliminary {...data}/>
                         </TabsContent>
                         <TabsContent value='student-preliminary'>
-                            <StudentPreliminary {...data?.data}/>
+                            <StudentPreliminary {...data}/>
                         </TabsContent>
                         <TabsContent value='bio'>
-                            <Bio {...data?.data}/>
+                            <Bio {...data}/>
                         </TabsContent>
                         <TabsContent value='employment'>
-                            <Employment {...data?.data}/>
+                            <Employment {...data}/>
                         </TabsContent>
                         <TabsContent value='study-programme'>
-                            <StudyProgramme {...data?.data}/>
+                            <StudyProgramme {...data}/>
                         </TabsContent>
                         <TabsContent value='qualifications'>
-                            <Qualifications {...data?.data}/>
+                            <Qualifications {...data}/>
                         </TabsContent>
                         <TabsContent value='recommendation'>
-                            <Recommendation {...data?.data}/>
+                            <Recommendation {...data}/>
                         </TabsContent>
                         <TabsContent value='disability'>
-                            <Disability {...data?.data}/>
+                            <Disability {...data}/>
                         </TabsContent>
                         <TabsContent value='offence'>
-                            <Offence {...data?.data}/>
+                            <Offence {...data}/>
                         </TabsContent>
                         <TabsContent value='attachments'>
                             {/* <Attachments/> */}
                         </TabsContent>
                         <TabsContent value='declaration'>
-                            <Declaration {...data?.data}/>
+                            <Declaration {...data}/>
                         </TabsContent>
                         <div className='p-1 mx-8 mb-2'>
                             <div className='flex space-x-2 justify-end'>
@@ -395,7 +395,7 @@ const WorkArea: React.FC<Work> = (data, userRole) => {
                                                     <Button
                                                     className=''
                                                     type='submit'
-                                                    // onClick={async () => await handleStatusChange(data?.data?.teacher_preliminary_infos.national_id, status)}
+                                                    // onClick={async () => await handleStatusChange(data?.teacher_preliminary_infos.national_id, status)}
                                                     >Submit</Button>
                                                 </AlertDialogFooter>
                                                 </form>
@@ -419,7 +419,7 @@ const WorkArea: React.FC<Work> = (data, userRole) => {
                                                     <AlertDialogCancel>Cancel</AlertDialogCancel>
                                                     <AlertDialogAction
                                                         className='bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300'
-                                                        onClick={async () => await handleStatusChange(data?.data?.teacher_registrations?.national_id, next_status!)}
+                                                        onClick={async () => await handleStatusChange(data?.teacher_registrations?.national_id, next_status!)}
                                                         >Continue</AlertDialogAction>
                                                     </AlertDialogFooter>
                                         </AlertDialogContent>
@@ -441,7 +441,7 @@ const WorkArea: React.FC<Work> = (data, userRole) => {
                                                     <AlertDialogCancel>Cancel</AlertDialogCancel>
                                                     <AlertDialogAction
                                                         className='bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300'
-                                                        onClick={async () => await handleEndorsementStatusUpdate(data?.data?.teacher_registrations?.national_id, recommend!)}
+                                                        onClick={async () => await handleEndorsementStatusUpdate(data?.teacher_registrations?.national_id, recommend!)}
                                                         >Continue</AlertDialogAction>
                                                     </AlertDialogFooter>
                                         </AlertDialogContent>
@@ -463,7 +463,7 @@ const WorkArea: React.FC<Work> = (data, userRole) => {
                                                     <AlertDialogCancel>Cancel</AlertDialogCancel>
                                                     <AlertDialogAction
                                                         className='bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300'
-                                                        onClick={async () => await handleEndorsementStatusUpdate(data?.data?.teacher_registrations?.national_id, endorse!)}
+                                                        onClick={async () => await handleEndorsementStatusUpdate(data?.teacher_registrations?.national_id, endorse!)}
                                                         >Continue</AlertDialogAction>
                                                     </AlertDialogFooter>
                                         </AlertDialogContent>

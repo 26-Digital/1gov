@@ -7,7 +7,8 @@ import { getLicenseById, getRegById } from "@/app/lib/actions";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
-export default async function Page({params}:{params: {slug: string}}){
+export default async function Page(props:{params: Promise<{slug: string}>}) {
+    const params = await props.params;
     const id = await params.slug;
     const work = await getLicenseById(id)
 
