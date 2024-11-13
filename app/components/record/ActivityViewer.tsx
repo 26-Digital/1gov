@@ -3,9 +3,8 @@ import {
 } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import { Activity } from '@/app/lib/types'
-
-const InfoCard = dynamic(() => import('../InfoCard'), { ssr: false })
-const InfoItem = dynamic(() => import('../InfoItem'), { ssr: false })
+import InfoCard from '../InfoCard';
+import InfoItem from '../InfoItem';
 
 interface ActivityViewProps {
   data: Activity;
