@@ -4,16 +4,11 @@ import {
   Info, FileText,  FileCheck,
   ClipboardCheck
 } from 'lucide-react'
-
-import dynamic from 'next/dynamic'
 import ActionButtons from './components/ActionItems';
 import { Investigation } from '@/app/lib/types';
 import InfoCardTwo from '../InfoCardTwoColumn';
-
-const InfoCard = dynamic(() => import('../InfoCard'), { ssr: false })
-const InfoItem = dynamic(() => import('../InfoItem'), { ssr: false })
-
-export const dynamicParams = true
+import InfoItem from '../InfoItem';
+import InfoCard from '../InfoCard';
 
 const PDFViewer: React.FC<{ url: string }> = ({ url }) => (
   <iframe src={`https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=true`} width="100%" height="500px" />

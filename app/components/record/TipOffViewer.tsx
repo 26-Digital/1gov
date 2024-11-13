@@ -1,11 +1,9 @@
 import React from 'react';
-import { Info, FileCheck, FileText, Home, ArrowLeft, ChevronLeft,  MoveLeft } from 'lucide-react'
-import dynamic from 'next/dynamic'
+import { Info, FileCheck, FileText, Home, ArrowLeft} from 'lucide-react'
 import { TipOffResponse } from '@/app/lib/types';
 import Link from 'next/link';
-
-const InfoCard = dynamic(() => import('../InfoCard'), { ssr: false })
-const InfoItem = dynamic(() => import('../InfoItem'), { ssr: false })
+import InfoCard from '../InfoCard';
+import InfoItem from '../InfoItem';
 
 interface TipOffViewerProps {
   data: TipOffResponse;
