@@ -66,7 +66,7 @@ interface Work{
     userRole: string | '',
 }
 
-const ApplicationForTeacherRegistration: React.FC<Work> = ({data, userRole}) => {
+export const ApplicationForTeacherRegistration: React.FC<Work> = ({data, userRole}) => {
     const { prev_status, next_status, rej_status, bar_status, inv_status, recommend, endorse, approve_label, reject_label, recommend_label, endorse_label } = getNextStatus(data?.userRole);
     const [previousStep, setPreviousStep] = useState(0);
     const [currentStep, setCurrentStep] = useState(0);
@@ -631,5 +631,3 @@ const ApplicationForTeacherRegistration: React.FC<Work> = ({data, userRole}) => 
         </div>
     )
 }
-
-export default ApplicationForTeacherRegistration;

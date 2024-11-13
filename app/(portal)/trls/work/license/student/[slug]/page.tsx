@@ -1,11 +1,7 @@
 import { getRole, getSession } from "@/app/auth/auth";
-import { ApplicationForTeacherRegistration } from "@/app/components/record/AppForTeacherRegistration";
 import { ApplicationForStudentLicense } from "@/app/components/record/ApplicationForStudentLicense";
-import CaseDetails from "@/app/components/record/record-details";
-import WorkArea from "@/app/components/record/work-area";
 import { getLicenseById, getRegById } from "@/app/lib/actions";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 
 export default async function Page(props:{params: Promise<{slug: string}>}) {
     const params = await props.params;
