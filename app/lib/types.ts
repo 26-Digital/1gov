@@ -68,6 +68,7 @@ export interface AccessGroup {
   persona: string[],
   current: string;
   username: string;
+  userid: string;
 }
 
 export interface LoginPayload {
@@ -101,7 +102,7 @@ export interface Complaint {
   outcome: string;
 }
 
-interface reporter {
+export interface reporter {
   name: string | null;
   contact_number: string | null;
   Omang_id: string | null;
@@ -113,7 +114,7 @@ interface reporter {
   reg_status: string | null;
   inquiry_number: string | null;
   case_number: string | null;
-  anonymous: string | null;
+  anonymous: boolean | null;
   submission_type: string | null;
   id: number | null;
   created_at: string | null;
@@ -162,9 +163,170 @@ interface investigation {
   updated_at: string | null;
 }
 
+interface preliminary_investigation {
+  id: number | null;
+  inquiry_number: string | null;
+  investigation_details: string | null;
+  investigation_outcome: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+}
+
 export interface Investigation {
   reporter: reporter;
   complaint: complaint;
   offender: offender;
   investigation: investigation;
+  preliminary_investigation: preliminary_investigation;
+}
+
+export interface InvestigationResponse{
+  code: number;
+  data?: Investigation;
+  message?: string;
+}
+
+export interface ComplaintSearchResponse{
+  code: number;
+  reporter?: reporter
+}
+
+export interface TipOffPayload{
+  full_name: string;
+  phone: string;
+  identity_No: string;
+  email: string;
+  nature_of_crime: string;
+  description: string;
+  crime_location: string;
+}
+
+export interface data {
+  full_name: string;
+  phone: string;
+  identity_No: string;
+  email: string;
+  nature_of_crime: string;
+  description: string;
+  crime_location: string;
+  tipoff_number: string;
+  id: number;
+}
+
+export interface TipOffListResponse{
+  code: number;
+  data?: data[];
+}
+
+interface dataactivity {
+  activity_number: string;
+  success: boolean;
+}
+
+export interface Activity{
+  activities: string;
+  full_name: string;
+  role: string;
+  record_type: string;
+  record_id: string;
+  activity_number: string;
+  submission_type: string;
+  date_of_submission: string;
+  anonymous: string;
+
+  action_taken?: string | null;
+  userid?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ActivityList{
+  activities: string;
+  full_name: string;
+  role: string;
+  record_type: string;
+  record_id: string;
+  activity_number: string;
+  submission_type: string;
+  date_of_submission: string;
+  anonymous: string;
+}
+
+export interface ActivityListResponse{
+  code: number;
+  activity?: Activity[];
+}
+interface objectac {
+  data: Activity;
+}
+export interface ActivityObject{
+  code: number;
+  data?: objectac;
+}
+
+export interface ActivityResponse{
+  code: number;
+  message: string;
+  data?: dataactivity;
+}
+
+
+interface response_data_activity {
+    id: 1,
+    activity_numbe: string;
+    activities: string;
+    action_taken: string;
+    record_type: string;
+    record_id: string;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface ActivityListResponse{
+  code: number;
+  data?: response_data_activity;
+}
+
+
+export interface ActivityPayload {
+  full_name: string;
+  role: string;
+  activities: string;
+  action_taken: string;
+  record_type: string;
+  anonymous: string;
+  submission_type: string;
+  userid: string;
+  record_id: string | number;
+}
+
+export interface ReportPayload {
+  investigation_details: string;
+  investigation_outcome: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface GETReportResponse {
+  message: string;
+  success: boolean;
+  data: {
+      id: number;
+      inquiry_number: string;
+      investigation_details: string | null,
+      investigation_outcome: string | null,
+      created_at: string;
+      updated_at: string;
+  }
+}
+
+export interface ReportResponse {
+  message?: string;
+  code: number;
+}
+
+export interface TipOffResponse{
+  message?: string;
+  code: number;
+  data?: data;
 }

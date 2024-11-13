@@ -1,29 +1,18 @@
 "use client"
 import { DataTable } from "./data-table";
-import { getTipOffs } from "@/app/lib/actions"
+import { getTipOffs, getUserActivities } from "@/app/lib/actions"
 import React, { useEffect, useState } from "react"
 import TableLoadingSkeleton from "../../TableLoadingSkeleton";
-import { tipoffsColumns } from "./tipoffs-columns";
 import { roleObjects } from "@/app/lib/store";
+import { Activity, ActivityList } from "@/app/lib/types";
+import { ActivityColumns } from "./activities-columns";
 
 interface WorkProps {
-    status: string;
     userRole: string;
+    userid: string;
 }
 
-interface TipOff {
-    id: number;
-    full_name: string;
-    phone: string;
-    identity_No: string;
-    email: string;
-    nature_of_crime: string;
-    description: string;
-    crime_location: string;
-    tipoff_number: string;
-}
 
-// Updated utility function to safely handle null values and prevent recursion
 const replaceNullWithEmptyString = (data: any): any => {
     // If data is null or undefined, return empty string
     if (data === null || data === undefined) {
@@ -52,35 +41,33 @@ const replaceNullWithEmptyString = (data: any): any => {
 };
 
 // Helper function to safely process the API response
-const processApiResponse = (data: any[]): TipOff[] => {
+const processApiResponse = (data: any[]): ActivityList[] => {
     return data.map(item => ({
-        id: item.id || 0,
+        activities: item.activities || '',
         full_name: item.full_name || '',
-        phone: item.phone || '',
-        identity_No: item.identity_No || '',
-        email: item.email || '',
-        nature_of_crime: item.nature_of_crime || '',
-        description: item.description || '',
-        crime_location: item.crime_location || '',
-        tipoff_number: item.tipoff_number || ''
+        role: item.role || '',
+        record_type: item.record_type || '',
+        record_id: item.record_id || '',
+        activity_number: item.activity_number || '',
+        submission_type: item.submission_type || '',
+        date_of_submission: item.date_of_submission || '',
+        anonymous: item.anonymous || '', 
     }));
 };
 
-export const TipOffsTable: React.FC<WorkProps> = ({status, userRole}) => {
-    const { inv_Next_Status } = roleObjects[userRole] || {};
-    const [response, setResponse] = useState<TipOff[] | null>(null);
+export const ActivitiesTable: React.FC<WorkProps> = ({ userRole, userid}) => {
+    const { activity_object } = roleObjects[userRole] || {};
+    const [response, setResponse] = useState<ActivityList[] | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    async function getTipOffsList(status: string) {
+    async function getUserActivity(userid: string, count: number) {
         setIsLoading(true);
         setError(null);
         
         try {
-            const result = await getTipOffs("Incoming", 100);
-            
+            const result = await getUserActivities(userid, 500);
             if (result.data && Array.isArray(result.data)) {
-                // Process the data safely
                 const processedData = processApiResponse(result.data);
                 setResponse(processedData);
             } else {
@@ -89,7 +76,7 @@ export const TipOffsTable: React.FC<WorkProps> = ({status, userRole}) => {
             }
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-            console.error('Error fetching tipoffs:', errorMessage);
+            console.error('Error fetching activities:', errorMessage);
             setError(errorMessage);
             setResponse(null);
         } finally {
@@ -98,13 +85,12 @@ export const TipOffsTable: React.FC<WorkProps> = ({status, userRole}) => {
     }
 
     useEffect(() => {
-        getTipOffsList(status || '');
-    }, [status]);
-
+        getUserActivity(userid, 500);
+    }, [userid]);
     if (error) {
         return (
             <div className="p-4 text-red-500">
-                Error loading tipoffs: {error}
+                Error loading data: {error}
             </div>
         );
     }
@@ -114,12 +100,12 @@ export const TipOffsTable: React.FC<WorkProps> = ({status, userRole}) => {
             {isLoading ? (
                 <TableLoadingSkeleton rows={6} columns={6} className="mt-4" />
             ) : response ? (
-                <DataTable data={response} columns={tipoffsColumns} userRole={userRole} />
+                <DataTable data={response} columns={ActivityColumns} userRole={userRole} />
             ) : (
-                <DataTable data={[]} columns={tipoffsColumns} userRole={userRole} />
+                <DataTable data={[]} columns={ActivityColumns} userRole={userRole} />
             )}
         </div>
     )
 }
 
-export default TipOffsTable;
+export default ActivitiesTable;

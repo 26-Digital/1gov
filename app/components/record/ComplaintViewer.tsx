@@ -1,15 +1,14 @@
-import React from 'react';
-import { FaExclamationTriangle, FaCheckCircle, FaFilePdf } from 'react-icons/fa';
-
+import { FaFilePdf } from 'react-icons/fa';
 import { statusTransitions } from '@/app/lib/store';
 import { 
-  Info, MapPin, User, FileText, Calendar, 
-  Truck, FileCheck, BarChart2, Users, Clock
+  Info, FileText,  FileCheck,
+  ClipboardCheck
 } from 'lucide-react'
 
 import dynamic from 'next/dynamic'
 import ActionButtons from './components/ActionItems';
 import { Investigation } from '@/app/lib/types';
+import InfoCardTwo from '../InfoCardTwoColumn';
 
 const InfoCard = dynamic(() => import('../InfoCard'), { ssr: false })
 const InfoItem = dynamic(() => import('../InfoItem'), { ssr: false })
@@ -20,7 +19,15 @@ const PDFViewer: React.FC<{ url: string }> = ({ url }) => (
   <iframe src={`https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=true`} width="100%" height="500px" />
 );
   
-export const getNextStatus = (userRole: string): { prev_status: string | null; inv_status: string | null; bar_status: string | null; rej_status: string | null; next_status: string | null; recommend: string | null; endorse: string | null;        reject_label: string | null;
+export const getNextStatus = (userRole: string): { 
+  prev_status: string | null; inv_status: string | null; 
+  bar_status: string | null; 
+  rej_status: string | null; 
+  next_status: string | null; 
+  recommend: string | null; 
+  endorse: string | null; 
+  next_statuses?: string[] | [],
+  reject_label: string | null;
   approve_label: string | null;
   recommend_label: string | null;
   endorse_label: string | null; } => {
@@ -35,7 +42,7 @@ interface InvestigationViewProps {
 
   const InvestigationView: React.FC<InvestigationViewProps> = ({ data, userRole }) => {
 
-    const { prev_status, next_status, rej_status, bar_status, inv_status, recommend, endorse, approve_label, reject_label, recommend_label, endorse_label } = getNextStatus(userRole);
+    const { prev_status, next_status, rej_status, bar_status, inv_status, recommend,next_statuses, endorse, approve_label, reject_label, recommend_label, endorse_label } = getNextStatus(userRole);
   
     const handleStatusChange = async (id: string, status: string, rejection_reason: string) => {
       
@@ -53,16 +60,18 @@ interface InvestigationViewProps {
             <h1 className="text-3xl font-bold text-gray-800">
               Complaint Information
             </h1>
-            <ActionButtons caseCode={data.reporter.inquiry_number  ?? ''} />
+            <ActionButtons recordId={data.reporter.inquiry_number  ?? ''} access={userRole} next_status={next_status}/>
           </div>
           <div className="mt-2 h-1 w-full bg-blue-400 rounded-full"></div>
         </div>
         <div className='flex-grow overflow-y-auto'>
           {/* max-h-[calc(100vh-200px)] */}
           <div className='space-y-8 pr-4'>
-            {renderSection(renderReportInfo(data))}
+            {renderSection(renderPreliminaryDetails(data))} 
+            {renderSection(renderReporterInfo(data))}
             {renderSection(renderComplaintInfo(data))}
             {renderSection(renderOffenderInfo(data))}
+            {renderSection(renderPreInvestigationInfo(data))} 
             {renderSection(renderInvestigationInfo(data))}
           </div>
       </div>
@@ -85,25 +94,31 @@ interface InvestigationViewProps {
     </div>
   );
   
-  const renderReportInfo = (data: Investigation) => (
+  const renderReporterInfo = (data: Investigation) => (
     <InfoCard title='Reporter Information' icon={<Info className="w-6 h-6 text-blue-500"/>}>
-      <InfoItem label="Name" value={data.reporter.name}/>
-      <InfoItem label="Contact number" value={data.reporter.contact_number}/>
-      <InfoItem label="Omang" value={data.reporter.Omang_id}/>
-      <InfoItem label="Passport number" value={data.reporter.passport_no}/>
-      <InfoItem label="Occupation" value={data.reporter.occupation}/>
-      <InfoItem label="Sex" value={data.reporter.sex}/>
-      <InfoItem label="Nationality" value={data.reporter.nationality}/>
-      <InfoItem label="Address" value={data.reporter.address}/>
-      <InfoItem label="Status" value={data.reporter.reg_status}/>
+      <InfoItem label="Name" value={data.reporter.name} isAnonymous={data.reporter.anonymous || false} isPersonalInfo={true}/>
+      <InfoItem label="Contact number" value={data.reporter.contact_number} isAnonymous={data.reporter.anonymous || false} isPersonalInfo={true}/>
+      <InfoItem label="Omang" value={data.reporter.Omang_id} isAnonymous={data.reporter.anonymous || false} isPersonalInfo={true}/>
+      <InfoItem label="Passport number" value={data.reporter.passport_no} isAnonymous={data.reporter.anonymous || false} isPersonalInfo={true}/>
+      <InfoItem label="Occupation" value={data.reporter.occupation} isAnonymous={data.reporter.anonymous || false} isPersonalInfo={true}/>
+      <InfoItem label="Sex" value={data.reporter.sex} isAnonymous={data.reporter.anonymous || false} isPersonalInfo={true}/>
+      <InfoItem label="Nationality" value={data.reporter.nationality} isAnonymous={data.reporter.anonymous || false} isPersonalInfo={true}/>
+      <InfoItem label="Address" value={data.reporter.address} isAnonymous={data.reporter.anonymous || false} isPersonalInfo={true}/>
       {/* <InfoItem label="Inquiry number" value={data.reporter.inquiry_number}/> */}
       {/* <InfoItem label="Case number" value={data.reporter.case_number}/> */}
-      <InfoItem label="Anonymous" value={data.reporter.anonymous}/>
-      <InfoItem label="Submission type" value={data.reporter.submission_type}/>
-      <InfoItem label="Created At" value={data.reporter.created_at}/>
-      <InfoItem label="Updated At" value={data.reporter.updated_at}/>
+      {/* <InfoItem label="Anonymous" value={data.reporter.anonymous}/> */}
+      
+      <InfoItem label="Created At" value={data.reporter.created_at} isAnonymous={data.reporter.anonymous || false} isPersonalInfo={true}/>
+      <InfoItem label="Updated At" value={data.reporter.updated_at} isAnonymous={data.reporter.anonymous || false} isPersonalInfo={true}/>
     </InfoCard>
   );
+
+  const renderPreliminaryDetails = (data: Investigation) => (
+    <InfoCardTwo title='Pre-App Details' icon={<ClipboardCheck className="w-6 h-6 text-blue-500"/>}>
+        <InfoItem label="Status" value={data.reporter.reg_status}/>
+        <InfoItem label="Submission type" value={data.reporter.submission_type}/>
+    </InfoCardTwo>
+  )
 
   const renderComplaintInfo = (data: Investigation) => (
     <InfoCard title='Complaint Details' icon={<FileCheck className="w-6 h-6 text-blue-500"/>}>
@@ -116,6 +131,13 @@ interface InvestigationViewProps {
       <InfoItem label="Date" value={data.complaint.date}/>
       <InfoItem label="Time" value={data.complaint.time}/>
       <InfoItem label="Outcome" value={data.complaint.outcome}/>
+    </InfoCard>
+  );
+
+  const renderPreInvestigationInfo = (data: Investigation) => (
+    <InfoCard title='Preliminary Investigation Details' icon={<FileCheck className="w-6 h-6 text-blue-500"/>}>
+      <InfoItem label="Details" value={data.preliminary_investigation.investigation_details}/>
+      <InfoItem label="Outcome" value={data.preliminary_investigation.investigation_outcome}/>
     </InfoCard>
   );
 
@@ -144,63 +166,5 @@ interface InvestigationViewProps {
       <InfoItem label="Outcome" value={data.investigation.outcome}/>
     </InfoCard>
   );
-  const options: Intl.DateTimeFormatOptions = {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: false,
-    timeZone: "UTC"
-};
-
-function ConvertTime(time: string){
-    return new Intl.DateTimeFormat("en-US", options).format(new Date(time))
-}
-
-function getRelativeTime(updateTime: string) {
-    const now = new Date();
-    const updated = new Date(updateTime);
-    const diffSeconds = Math.floor((now.getTime() - updated.getTime()) / 1000);
-    
-    if (diffSeconds < 60) {
-        return "Updated seconds ago";
-    } else if (diffSeconds < 3600) {
-        const minutes = Math.floor(diffSeconds / 60);
-        return `Updated ${minutes} minute${minutes > 1 ? 's' : ''} ago`;
-    } else if (diffSeconds < 86400) {
-        const hours = Math.floor(diffSeconds / 3600);
-        return `Updated ${hours} hour${hours > 1 ? 's' : ''} ago`;
-    } else if (diffSeconds < 604800) {
-        const days = Math.floor(diffSeconds / 86400);
-        if (days === 1) {
-            return "Updated a day ago";
-        } else {
-            return `Updated ${days} days ago`;
-        }
-    } else if (diffSeconds < 2592000) {
-        const weeks = Math.floor(diffSeconds / 604800);
-        if (weeks === 1) {
-            return "Updated a week ago";
-        } else {
-            return `Updated ${weeks} weeks ago`;
-        }
-    } else if (diffSeconds < 31536000) {
-        const months = Math.floor(diffSeconds / 2592000);
-        if (months === 1) {
-            return "Updated a month ago";
-        } else {
-            return `Updated ${months} months ago`;
-        }
-    } else {
-        const years = Math.floor(diffSeconds / 31536000);
-        if (years === 1) {
-            return "Updated a year ago";
-        } else {
-            return `Updated ${years} years ago`;
-        }
-    }
-  }
 
   export default InvestigationView;

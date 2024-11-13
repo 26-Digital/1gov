@@ -26,7 +26,7 @@ export const complaintSchema = z.object({
   inquiry_number:z.string(),
   reg_status: z.string(),
   date_of_submission: z.string(),
-  anonymous: z.string()
+  anonymous: z.boolean()
 })
 
 export const complaintSchemawithNullValues = z.object({
@@ -36,7 +36,7 @@ export const complaintSchemawithNullValues = z.object({
   inquiry_number: z.string().nullable().optional(),
   reg_status: z.string().nullable().optional(),
   date_of_submission: z.string().nullable().optional(),
-  anonymous: z.string().nullable().optional()
+  anonymous: z.boolean().nullable().optional()
 });
 
 export const InvestigationsSchema = z.object({
@@ -56,7 +56,32 @@ export const InvestigationsSchema = z.object({
   updated_at:z.string(),
 })
 
+export const tipoffSchema = z.object({
+  id: z.number(),
+  tipoff_number: z.string(),
+  full_name: z.string(),
+  phone: z.string(),
+  identity_No: z.string(),
+  email: z.string(),
+  nature_of_crime: z.string(),
+  description: z.string(),
+  crime_location: z.string(),
+})
 
+export const activitySchema = z.object({
+  activities: z.string(),
+  full_name: z.string(),
+  role: z.string(),
+  record_type: z.string(),
+  record_id: z.string(),
+  activity_number: z.string(),
+  submission_type: z.string(),
+  date_of_submission: z.string(),
+  anonymous: z.string()
+})
+
+export type Activity = z.infer<typeof activitySchema>
+export type Tipoff = z.infer<typeof tipoffSchema>
 export type complaintwithNullValues = z.infer<typeof complaintSchemawithNullValues>
 export type Investigations = z.infer<typeof InvestigationsSchema>
 export type Complaint = z.infer<typeof complaintSchema>

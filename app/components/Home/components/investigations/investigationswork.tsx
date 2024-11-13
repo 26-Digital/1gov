@@ -1,14 +1,14 @@
-// components/SelectTable.tsx
 'use client'
 import { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { mgt, roleObjects } from "@/app/lib/store";
-import { Work } from "@/app/components/MyWork/work";
 import { Search } from "@/app/components/dashboard/search";
 import { InvestigationsTable } from "../investigations-table";
 import Link from "next/link";
 import { Plus } from "lucide-react";
+import { TipOffsTable } from "../tipoffs-table";
+import ActionButtons from "@/app/components/record/components/ActionItems";
 
 interface Props {
   userRole: string
@@ -32,54 +32,77 @@ export const InvestigationsWork = ({ userRole }: Props) => {
       return table === 'Investigations' 
         ? <InvestigationsTable status={status} userRole={userRole} />
         : <InvestigationsTable status={status} userRole={userRole} />;
-    }else if(table === 'Tip Offs'){
-        return table === 'Tip Offs' 
-        ? <InvestigationsTable status={status} userRole={userRole} />
-        : <InvestigationsTable status={status} userRole={userRole} />;
-
-    }else {
-      return table === 'Investigations'
-        ? <InvestigationsTable status={status} userRole={userRole} />
-        : <InvestigationsTable status={status} userRole={userRole} />;
+    } else if(table === 'Tip Offs') {
+      return <TipOffsTable status={status} userRole={userRole} />;
+    } else {
+      return <InvestigationsTable status={status} userRole={userRole} />;
     }
   }
     
   return (
     <>
-      <div className="grid grid-cols-2 pb-5">
-        <div className="">
-          <div className="flex space-x-2 items-end">
-            <div className="">
-              <Label className="font-light">Show work for</Label>
-              <Select onValueChange={handleSelectChange} value={table}>
-                <SelectTrigger className="w-[180px]">
+      <div className="bg-white p-6 rounded-lg shadow-sm border">
+        <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+          {/* Left Section - Select and Filters */}
+          <div className="space-y-2">
+            <Label className="text-sm font-medium text-gray-700">Show work for</Label>
+            <div className="flex items-center gap-3">
+              <Select 
+                onValueChange={handleSelectChange} 
+                value={table}
+              >
+                <SelectTrigger className="w-[200px] bg-white">
                   <SelectValue placeholder="Select an application..." />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
                     <SelectLabel>Application Type</SelectLabel>
-                    {reg_application && <SelectItem value="RegistrationApplication">Registration</SelectItem>}
-                    {tipoff_Next_Status && <SelectItem value="Tip Offs">Tip Offs</SelectItem>}
-                    {inv_application && <SelectItem value="Investigations">Investigations</SelectItem>}
+                    {reg_application && 
+                      <SelectItem value="RegistrationApplication">
+                        Registration
+                      </SelectItem>
+                    }
+                    {tipoff_Next_Status && 
+                      <SelectItem value="Tip Offs">
+                        Tip Offs
+                      </SelectItem>
+                    }
+                    {inv_application && 
+                      <SelectItem value="Investigations">
+                        Investigations
+                      </SelectItem>
+                    }
                   </SelectGroup>
                 </SelectContent>
               </Select>
             </div>
-            <div className="mt-4 w-full flex justify-start px-4">
+          </div>
+
+          {/* Right Section - Action Buttons */}
+          <div className="flex flex-wrap items-center gap-3">
               <Link 
                 href="/trls/work/investigation/create" 
-                className="inline-flex items-center gap-2 rounded-md bg-blue-600 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
               >
                 <Plus className="h-4 w-4" />
-                Create New Investigation
+                Investigation
               </Link>
-            </div>
+            <Link 
+              href="/trls/work/tipoff/create" 
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-green-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+            >
+              <Plus className="h-4 w-4" />
+              Tip-off
+            </Link>
           </div>
         </div>
-        <div className="place-self-end">
-          <Search/>
+
+        {/* Optional Search Bar */}
+        <div className="mt-4 md:mt-6">
+          <Search />
         </div>
       </div>
+      
       {renderTable()}
     </>
   )

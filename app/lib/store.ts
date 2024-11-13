@@ -1,17 +1,15 @@
-export const apiUrl = 'http://10.0.25.164:8080/trls-api';
-export const invUrl = 'http://10.0.25.164:8084/trls-api';
-export const apiUrl1 = 'http://74.208.205.44:8080/api';
-export const licUrl = 'http://66.179.253.57:8081/api'
-export const authUrlOLD = 'http://jwtauth.26digitaldev.com/api/';
-export const authUrl = 'https://gateway-cus-acc.gov.bw/auth/login/sms';
-export const emailauthUrl = 'https://gateway-cus-acc.gov.bw/auth/login';
-export const iamURL = 'https://gateway-cus-acc.gov.bw';
-export const otpUrl = 'https://gateway-cus-acc.gov.bw/auth/login/sms';
-export const DeTokenizeUrl = 'https://gateway-cus-acc.gov.bw/auth/validate-token?token=';
-export const validateUrl = 'https://gateway-cus-acc.gov.bw/auth/validate/otp';
-export const cmsUrl = 'http://reg-ui-acc.gov.bw:8080/download/MESD_006_08_001/';
-export const secretKey = 'secret';
-export const version = 'v2.02.91';
+export const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://10.0.25.164:8080/trls-api';
+export const invUrl = process.env.NEXT_PUBLIC_INV_URL ?? 'http://10.0.25.164:8084/trls-api';
+export const licUrl = process.env.NEXT_PUBLIC_LIC_URL ?? 'http://66.179.253.57:8081/api';
+export const authUrl = process.env.NEXT_PUBLIC_AUTH_URL ?? 'https://gateway-cus-acc.gov.bw/auth/login/sms';
+export const emailauthUrl = process.env.NEXT_PUBLIC_EMAIL_AUTH_URL ?? 'https://gateway-cus-acc.gov.bw/auth/login';
+export const iamURL = process.env.NEXT_PUBLIC_IAM_URL ?? 'https://gateway-cus-acc.gov.bw';
+export const otpUrl = process.env.NEXT_PUBLIC_OTP_URL ?? 'https://dev-gateway.example.com/auth/login/sms';
+export const DeTokenizeUrl = process.env.NEXT_PUBLIC_DETOKENIZE_URL ?? 'https://gateway-cus-acc.gov.bw/auth/validate-token?token=';
+export const validateUrl = process.env.NEXT_PUBLIC_VALIDATE_URL ?? 'https://gateway-cus-acc.gov.bw/auth/validate/otp';
+export const cmsUrl = process.env.NEXT_PUBLIC_CMS_URL ?? 'http://reg-ui-acc.gov.bw:8080/download/MESD_006_08_001/';
+export const secretKey = process.env.NEXT_PUBLIC_SECRET_KEY ?? 'dev_secret';
+export const version = process.env.NEXT_PUBLIC_VERSION ?? 'v2.09.99';
 
 export interface StatusTransition {
     [key: string]: {
@@ -22,6 +20,7 @@ export interface StatusTransition {
         endorse: string | null,
         rej_status: string | null;
         next_status: string | null;
+        next_statuses?: string[] | []
         reject_label: string | null;
         approve_label: string | null;
         recommend_label: string | null;
@@ -38,6 +37,7 @@ export interface RoleObjects{
         inv_Next_Status: string | null,
         tipoff_Next_Status: string | null,
         lic_Next_Status: string | null,
+        activity_object?: boolean,
         defaultWork: string | '',
     }
 }
@@ -61,6 +61,7 @@ export const roleObjects: RoleObjects = {
         inv_Next_Status: 'Incoming',
         tipoff_Next_Status: 'Incoming',
         lic_Next_Status: null,
+        activity_object: true,
         defaultWork: 'Investigations'
     },
     'senior_investigations_officer': {
@@ -70,6 +71,7 @@ export const roleObjects: RoleObjects = {
         reg_Next_Status: null,
         inv_Next_Status: 'Under-Review',
         tipoff_Next_Status: 'Under-Review',
+        activity_object: true,
         lic_Next_Status: null,
         defaultWork: 'Investigations'
     },
@@ -80,6 +82,7 @@ export const roleObjects: RoleObjects = {
         reg_Next_Status: null,
         inv_Next_Status: 'Assessment',
         tipoff_Next_Status: 'Assessment',
+        activity_object: true,
         lic_Next_Status: null,
         defaultWork: 'Investigations'
     },
@@ -158,6 +161,23 @@ export const mgt = [
     'director', 
     'registrar'
 ]
+
+interface InvestigationStatuses {
+    label: string;
+    value: string;
+    access: string[];
+}
+
+const sidebarItems: InvestigationStatuses[] = [
+    {label: 'Review', value: 'Under-Review', access:["investigations_officer"]},
+    {label: 'Incoming', value: 'Incoming', access:[]},
+    {label: 'Registered', value: 'Registered', access:[]},
+    {label: 'Assessment', value: 'Assessment', access:["senior_investigations_officer"]},
+    {label: 'Criminal investigation', value: 'Recommend-for-external-investigation', access:["investigations_manager"]},
+    {label: 'Administrative', value: 'Ongoing-investigation', access:["investigations_manager"]},
+    {label: 'Recommend for closure', value: 'Recommend-for-closure', access:["investigations_manager"]}
+]
+
 export const statusTransitions: StatusTransition = {
     'Default': {
         prev_status: 'Default',
@@ -192,9 +212,36 @@ export const statusTransitions: StatusTransition = {
         rej_status: null,
         recommend: null,
         endorse: null,
-        next_status: 'Registered',
+        next_status: 'Under-review',
         reject_label: 'Incoming',
-        approve_label: 'Registered',
+        approve_label: 'Review',
+        recommend_label: null,
+        endorse_label: null
+    },
+    'senior_investigations_officer': {
+        prev_status: 'Incoming',
+        inv_status: null,
+        bar_status: null,
+        rej_status: null,
+        recommend: null,
+        endorse: null,
+        next_status: 'Assessment',
+        reject_label: 'Incoming',
+        approve_label: 'Assessment',
+        recommend_label: null,
+        endorse_label: null
+    },
+    'investigations_manager': {
+        prev_status: 'Incoming',
+        inv_status: null,
+        bar_status: null,
+        rej_status: null,
+        recommend: null,
+        endorse: null,
+        next_status: 'Picklist',
+        reject_label: 'Incoming',
+        next_statuses: ['Recommend-for-external-investigation'],
+        approve_label: 'Allocate to',
         recommend_label: null,
         endorse_label: null
     },
