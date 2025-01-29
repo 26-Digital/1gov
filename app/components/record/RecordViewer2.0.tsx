@@ -25,6 +25,7 @@ import { Info, FileCheck, FileText, File, Briefcase, School, AlertTriangle, User
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import InfoCard from '../InfoCard';
 import InfoItem from '../InfoItem';
+import { getAuthData } from '@/app/welcome/components/email-login';
 
 
 interface TeacherRegistration {
@@ -218,7 +219,9 @@ interface TeacherRegistrationViewProps {
   
     const handleStatusChange = async (id: string, status: string, rejection_reason: string) => {
       if (status) {
-        const res = await UpdateStatus(id, status, rejection_reason);
+        const authData = getAuthData();
+        const bearerToken = authData?.access_token;
+        const res = await UpdateStatus(id, status, rejection_reason, bearerToken);
   
         router.prefetch('/trls/registration');
         if (res !== 201) {

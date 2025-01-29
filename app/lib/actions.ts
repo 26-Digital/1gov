@@ -3039,13 +3039,14 @@ export async function UpdateStatusV1(id: string, status: string, rejection_reaso
   return res.status;
 }
 
-export async function UpdateStatus(id: string, status: string, rejection_reason: string) {
+export async function UpdateStatus(id: string, status: string, rejection_reason: string, bearer?:string) {
   const res = await fetch(
     `${apiUrl}/teacher_registrations/${id}?reg_status=${status}&rejection_reason=${rejection_reason}`,
     {
       method: 'PUT',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${bearer}`
       }
     }
   );
