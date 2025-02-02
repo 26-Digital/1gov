@@ -142,14 +142,28 @@ export default function CreateCasePage() {
     }));
   };
 
+  // const handleDateChange = (name: string) => (date: Date | undefined) => {
+  //   const [topLevelProperty, nestedProperty] = name.split('.');
+  
+  //   setCaseDetails((prev) => ({
+  //     ...prev,
+  //     [topLevelProperty]: {
+  //       ...prev[topLevelProperty as keyof InvestigationRecord],
+  //       [nestedProperty]: date ? date.toISOString().split('T')[0] : '',
+  //     },
+  //   }));
+  // };
+
   const handleDateChange = (name: string) => (date: Date | undefined) => {
     const [topLevelProperty, nestedProperty] = name.split('.');
-  
+    
     setCaseDetails((prev) => ({
       ...prev,
       [topLevelProperty]: {
         ...prev[topLevelProperty as keyof InvestigationRecord],
-        [nestedProperty]: date ? date.toISOString().split('T')[0] : '',
+        [nestedProperty]: date ? 
+          `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+          : '',
       },
     }));
   };
@@ -514,7 +528,7 @@ export default function CreateCasePage() {
                 type="text"
                 id="offender.nationality"
                 name="offender.nationality"
-                value={caseDetails?.reporter.nationality}
+                value={caseDetails?.offender.nationality}
                 onChange={handleInputChange}
               />
             </div>

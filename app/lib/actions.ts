@@ -2,7 +2,7 @@
 
 // import { cookies } from 'next/headers';
 import { revalidateTag } from "next/cache";
-import { apiUrl, appealUrl, cpdUrl, deltaCategoryUrl, invUrl, licUrl, renewalUrl, restorationUrl, revocationUrl } from "./store";
+import { apiUrl, appealUrl, cpdUrl, deltaCategoryUrl, invUrl, licUrl, renewalUrl, restorationUrl, revocationUrl, studentTeacherUrl } from "./store";
 import {  Appeals_list, ActivityListResponse, ActivityObject, ActivityPayload, ActivityResponse, ComplaintPayload, ComplaintSearchResponse, CPDListResponse, CPDResponseGet, DecodedToken, Investigation, InvestigationResponse, ReportPayload, ReportResponse, TipOffListResponse, TipOffPayload, TipOffResponse, appeal, TeacherRegistrationResponse, InvestigationReportPayload } from './types';
 import { decryptAccessToken, getAccessGroups, getSession, refreshToken } from '../auth/auth';
 import { options } from './schema';
@@ -55,6 +55,8 @@ import { ChangeOfCategoryResponse } from "../(portal)/trls/work/changeofcategory
 import { RestorationResponse } from "../(portal)/trls/work/restoration/types/restoration-type";
 import { endorsement_status } from "../components/Home/data/data";
 import { InvestigationResponseList } from "../components/Home/components/investigations-table";
+import { StudentTeacherListResponse } from "../components/Home/components/studentteacher/types/studentteacher";
+import { StudentTeacherResponse } from "../(portal)/trls/work/student-teacher/types/student-type";
 //import { DecodedToken } from '@/types'; // Adjust import path as needed
 
 const TOKEN_REFRESH_THRESHOLD = 300; // 5 minutes in seconds
@@ -80,7 +82,7 @@ async function fetchWithAuth(
     if (retryCount < maxRetries) {
       retryCount++;
       const backoffDelay = Math.min(1000 * Math.pow(2, retryCount), 10000);
-      console.log(`Retry attempt ${retryCount} after ${backoffDelay}ms`);
+    
       await new Promise(resolve => setTimeout(resolve, backoffDelay));
       return attemptRequest();
     }
@@ -93,7 +95,6 @@ async function fetchWithAuth(
       let session = await getSession();
       let groups = await getAccessGroups();
 
-      console.log('Auth from Fetch with Auth',session)
       if (!session?.auth?.access_token) {
         throw new Error('No valid session or access token');
       }
@@ -212,7 +213,6 @@ async function fetchWithAuth2(url: string, options: RequestInit = {}, timeoutMs:
   const controller = new AbortController();
   const timeoutId = setTimeout(() => {
     controller.abort();
-    console.log(`Request aborted due to timeout after ${timeoutMs}ms`);
   }, timeoutMs);
 
   try {0
@@ -589,8 +589,6 @@ export async function updateComplaintStatus(ID: string, status: string): Promise
 
 export async function updateCPDStatus(ID: string, status: string): Promise<{code: number; message: string}> {
   try {
-
-    console.log(ID,status)
     const response = await fetch(`${cpdUrl}/update_status/${ID}?reg_status=${status}`, {
       method: 'PUT',
       headers: {
@@ -643,8 +641,6 @@ export async function updateCPDStatus(ID: string, status: string): Promise<{code
 
 export async function updateAppealsStatus(ID: string, status: string): Promise<{code: number; message: string}> {
   try {
-
-    console.log(ID,status)
     const response = await fetch(`${appealUrl}/update_status/${ID}?reg_status=${status}`, {
       method: 'PATCH',
       headers: {
@@ -695,7 +691,7 @@ export async function updateAppealsStatus(ID: string, status: string): Promise<{
   }
 }
 
-export async function updateRenewalStatus(ID: string, status: string): Promise<{code: number; message: string}> {
+export async function updateRenewalStatus(ID: string, status: string, bearer?:string): Promise<{code: number; message: string}> {
   try {
     let param_key='reg_status';
     if(status == "Endorsement-Complete" || status == "Endorsement-Recommendation"){
@@ -707,7 +703,7 @@ export async function updateRenewalStatus(ID: string, status: string): Promise<{
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        'Bearer': ''
+        'Authorization': `Bearer ${bearer}`
       },
       cache:'no-cache'
     });
@@ -881,7 +877,8 @@ export async function updateChangeOfCategoryStatusV1(
 
 export async function updateChangeOfCategoryStatus(
   ID: string, 
-  status: string
+  status: string,
+  bearer?: string
  ): Promise<{code: number; message: string}> {
   try {
     // Prepare query parameters
@@ -899,7 +896,7 @@ export async function updateChangeOfCategoryStatus(
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
-          // Add auth headers as needed
+          'Authorization': `Bearer ${bearer}`
         },
         // Trigger revalidation
         next: {
@@ -949,9 +946,73 @@ export async function updateChangeOfCategoryStatus(
       message: error instanceof Error ? error.message : 'Failed to update status. Please try again'
     };
   }
- }
+}
 
-export async function updateRestorationStatus(
+export async function updateStudentTeacherStatus(
+  ID: string, 
+  status: string,
+  bearer?: string
+ ): Promise<{code: number; message: string}> {
+  try {
+    // Prepare query parameters
+    const params = new URLSearchParams();
+    if(status === 'Endorsement-Complete' || status === 'Endorsement-Recommendation') {
+      params.append('endorsement_status', status);
+    } else {
+      params.append('reg_status', status);
+    }
+ 
+    const response = await fetch(
+      `${studentTeacherUrl}/student-teacher/${ID}?${params.toString()}`,
+      {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${bearer}`
+        },
+        // Trigger revalidation
+        next: {
+          tags: [`student-${ID}`]
+        }
+      }
+    );
+ 
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+ 
+    const data = await response.json();
+ 
+    return {
+      code: response.status,
+      message: data?.message || 'Success'
+    };
+ 
+  } catch (error) {
+    // Log the error with more context
+    console.error('Error updating category status:', {
+      ID,
+      status,
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+ 
+    // Handle specific HTTP errors
+    if (error instanceof Error && 'status' in error) {
+      return {
+        code: (error as any).status || 500,
+        message: (error as any).message || 'Failed to update status. Please try again'
+      };
+    }
+ 
+    return {
+      code: 500,
+      message: error instanceof Error ? error.message : 'Failed to update status. Please try again'
+    };
+  }
+}
+
+export async function updateRestorationStatusV1(
   ID: string, 
   status: string
 ): Promise<{code: number; message: string}> {
@@ -1013,9 +1074,10 @@ export async function updateRestorationStatus(
   }
 }
 
-export async function updateRestorationStatusV1(
+export async function updateRestorationStatus(
   ID: string, 
-  status: string
+  status: string,
+  bearer?: string
  ): Promise<{code: number; message: string}> {
   try {
     // Prepare query parameters
@@ -1033,7 +1095,7 @@ export async function updateRestorationStatusV1(
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
-          // Add auth headers as needed
+          'Authorization': `Bearer ${bearer}`
         },
         next: {
           tags: [`restoration-${ID}`]
@@ -1194,49 +1256,86 @@ export async function createTipOff(payload: TipOffPayload): Promise<TipOffRespon
 
 export async function createReport(payload: ReportPayload, ID: string): Promise<ReportResponse> {
   try {
-    const response = await fetchWithAuth(
+    const response = await fetch(
       `${invUrl}/update-preliminary-investigations/${ID}`,
       {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json'
+          'Accept': 'application/json',
         },
-        data: payload // Axios uses data instead of body
+        cache: "no-store",
+        body: JSON.stringify(payload)
       }
     );
- 
-    // Successful response (2xx status code)
-    return {
-      message: 'Report created successfully',
-      code: response.status,
-    };
- 
-  } catch (error) {
-    console.error('Error creating report:', error);
-    
-    if (axios.isAxiosError(error)) {
-      // Handle specific Axios errors
-      const statusCode = error.response?.status || 500;
-      const errorMessage = error.response?.data?.message || 'Failed to create report';
- 
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
       return {
-        code: statusCode,
-        message: errorMessage,
+        code: response.status,
+        message: errorData?.message || 'Failed to create report'
       };
     }
- 
-    // Handle non-Axios errors
+
+    return {
+      message: 'Report created successfully',
+      code: response.status
+    };
+
+  } catch (error) {
+    console.error('Error creating report:', error);
     return {
       code: 500,
-      message: error instanceof Error ? error.message : 'Failed to create report',
+      message: error instanceof Error ? error.message : 'Failed to create report'
     };
   }
- }
+}
 
- export async function createInvestigationReport(payload: InvestigationReportPayload, ID: string): Promise<ReportResponse> {
+export async function createInvestigationReportv1(payload: InvestigationReportPayload, ID: string): Promise<ReportResponse> {
+try {
+  const response = await fetchWithAuth(
+    `${invUrl}/update-investigations/${ID}`,
+    {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      data: payload // Axios uses data instead of body
+    }
+  );
+
+  // Successful response (2xx status code)
+  return {
+    message: 'Report created successfully',
+    code: response.status,
+  };
+
+} catch (error) {
+  console.error('Error creating report:', error);
+  
+  if (axios.isAxiosError(error)) {
+    // Handle specific Axios errors
+    const statusCode = error.response?.status || 500;
+    const errorMessage = error.response?.data?.message || 'Failed to create report';
+
+    return {
+      code: statusCode,
+      message: errorMessage,
+    };
+  }
+
+  // Handle non-Axios errors
+  return {
+    code: 500,
+    message: error instanceof Error ? error.message : 'Failed to create report',
+  };
+}
+}
+
+export async function createInvestigationReport(payload: InvestigationReportPayload, ID: string): Promise<ReportResponse> {
   try {
-    const response = await fetchWithAuth(
+    const response = await fetch(
       `${invUrl}/update-investigations/${ID}`,
       {
         method: 'PUT',
@@ -1244,54 +1343,57 @@ export async function createReport(payload: ReportPayload, ID: string): Promise<
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
-        data: payload // Axios uses data instead of body
+        body: JSON.stringify(payload)
       }
     );
  
-    // Successful response (2xx status code)
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
+      return {
+        code: response.status,
+        message: errorData?.message || 'Failed to create report'
+      };
+    }
+ 
     return {
-      message: 'Report created successfully',
-      code: response.status,
+      message: 'Report created successfully', 
+      code: response.status
     };
  
   } catch (error) {
     console.error('Error creating report:', error);
-    
-    if (axios.isAxiosError(error)) {
-      // Handle specific Axios errors
-      const statusCode = error.response?.status || 500;
-      const errorMessage = error.response?.data?.message || 'Failed to create report';
- 
-      return {
-        code: statusCode,
-        message: errorMessage,
-      };
-    }
- 
-    // Handle non-Axios errors
     return {
       code: 500,
-      message: error instanceof Error ? error.message : 'Failed to create report',
+      message: error instanceof Error ? error.message : 'Failed to create report'
     };
   }
  }
 
 export async function getReportRecordById(Id: string) {
   try {
-    const res = await fetchWithAuth4(`${invUrl}/preliminary-investigations/${Id}`, { cache: 'no-cache' } );
+    const res = await fetch(
+      `${invUrl}/preliminary-investigations/${Id}`, 
+      { 
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        cache: 'no-cache' 
+      }
+    );
 
-    if (!res.ok) {
-      if (res.status === 200) return null;
-      throw new Error('Failed to fetch data');
+    if (res.status === 200) {
+      return res.json();
     }
-    return res.json();
+    return null;
+
   } catch (error) {
     console.error('Error fetching record by ID:', error);
     return null;
   }
 }
 
-export async function createActivity(payload: ActivityPayload): Promise<ActivityResponse> {
+export async function createActivityV1(payload: ActivityPayload): Promise<ActivityResponse> {
   try {
     const response = await fetchWithAuth(
       `${invUrl}/activity-diaries`,
@@ -1339,6 +1441,47 @@ export async function createActivity(payload: ActivityPayload): Promise<Activity
   }
 }
 
+export async function createActivity(payload: ActivityPayload): Promise<ActivityResponse> {
+  try {
+    const response = await fetch(
+      `${invUrl}/activity-diaries`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      }
+    );
+ 
+    const data = await response.json();
+ 
+    if (!response.ok) {
+      return {
+        code: response.status,
+        message: data?.message || 'Failed to create activity'
+      };
+    }
+ 
+    return {
+      message: 'Activity created successfully',
+      code: response.status,
+      data: data?.data || {
+        success: true,
+        activity_number: data?.activity_number || 'Unknown'
+      }
+    };
+ 
+  } catch (error) {
+    console.error('Error creating activity:', error);
+    return {
+      code: 500,
+      message: error instanceof Error ? error.message : 'Failed to create activity'
+    };
+  }
+}
+
 export async function getActivityByNumber(ID: string): Promise<ActivityObject> {
   try {
     const response = await fetch(`${invUrl}/activity-diaries/${ID}`, {
@@ -1350,7 +1493,6 @@ export async function getActivityByNumber(ID: string): Promise<ActivityObject> {
 
     });
 
-    // console.log('Response headers:', Object.fromEntries(response.headers.entries()));
     const responseText = await response.text();
 
     if (!response.ok) {
@@ -1390,13 +1532,22 @@ export async function getActivityByNumber(ID: string): Promise<ActivityObject> {
 
 export async function getTipOffRecordById(Id: string) {
   try {
-    const res = await fetchWithAuth4(`${invUrl}/get-tipoff/${Id}`, { cache: 'force-cache' } );
-
-    if (!res.ok) {
-      if (res.status === 200) return null;
-      throw new Error('Failed to fetch data');
+    const res = await fetch(
+      `${invUrl}/get-tipoff/${Id}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        cache: 'force-cache'
+      }
+    );
+ 
+    if (res.status === 200) {
+      return res.json();
     }
-    return res.json();
+    return null;
+ 
   } catch (error) {
     console.error('Error fetching record by ID:', error);
     return null;
@@ -1414,7 +1565,6 @@ export async function getTipOffById(ID: string): Promise<TipOffResponse> {
 
     });
 
-    // console.log('Response headers:', Object.fromEntries(response.headers.entries()));
     const responseText = await response.text();
 
     if (!response.ok) {
@@ -1466,7 +1616,6 @@ export async function getTipOffs(status: string, count: number): Promise<TipOffL
 
     });
 
-    //console.log('Response headers:', Object.fromEntries(response.headers.entries()));
     const responseText = await response.text();
     if (!response.ok) {
       let errorMessage: string;
@@ -1733,7 +1882,6 @@ export async function getRenewals(status: string, count: number): Promise<Renewa
     if (responseText) {
       try {
         result = JSON.parse(responseText);
-        console.log(result)
       } catch (parseError) {
         console.error('Error parsing response:', parseError);
         throw new Error(`Invalid JSON response: ${responseText}`);
@@ -1787,7 +1935,59 @@ export async function getChangeOfCategories(status: string, count: number): Prom
     if (responseText) {
       try {
         result = JSON.parse(responseText);
-        console.log(result)
+      } catch (parseError) {
+        console.error('Error parsing response:', parseError);
+        throw new Error(`Invalid JSON response: ${responseText}`);
+      }
+    } else {
+      result = { message: 'Success', code: response.status, data: null };
+    }
+
+    return {
+      code: response.status,
+      message: "success",
+      data: result
+    };
+
+  } catch (error) {
+    console.error('Error passing json:', error);
+    return {
+      code: error instanceof Error && 'status' in error ? (error as any).status : 500,
+    };
+  }
+}
+
+export async function getStudentTeacherList(status: string, count: number): Promise<StudentTeacherListResponse> {
+
+  try {
+    let param_key='reg_status';
+    if(status == "Endorsement-Complete" || status == "Pending-Endorsement" || status == "Endorsement-Recommendation"){
+      param_key='endorsement_status';
+    }
+    const response = await fetch(`${studentTeacherUrl}/GetRegistrationsByCount?${param_key}=${status}&count=${count}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+    cache:'no-cache'
+    });
+    const responseText = await response.text();
+    if (!response.ok) {
+      let errorMessage: string;
+      try {
+        const errorData = JSON.parse(responseText);
+        errorMessage = errorData.message || `HTTP error! status: ${response.status}`;
+      } catch (parseError) {
+        errorMessage = `HTTP error! status: ${response.status}. Raw response: ${responseText}`;
+      }
+      throw new Error(errorMessage);
+    }
+
+    let result;
+    if (responseText) {
+      try {
+        result = JSON.parse(responseText);
       } catch (parseError) {
         console.error('Error parsing response:', parseError);
         throw new Error(`Invalid JSON response: ${responseText}`);
@@ -1823,7 +2023,6 @@ export async function getCPDByNumber(ID: string): Promise<CPDResponseGet> {
     cache:'no-cache'
     });
 
-    // console.log('Response headers:', Object.fromEntries(response.headers.entries()));
     const responseText = await response.text();
 
     if (!response.ok) {
@@ -1874,7 +2073,6 @@ export async function getAppealByNumber(ID: string): Promise<appeal> {
       cache:'no-cache'
     });
 
-    // console.log('Response headers:', Object.fromEntries(response.headers.entries()));
     const responseText = await response.text();
 
     if (!response.ok) {
@@ -1977,7 +2175,6 @@ export async function getUserActivities(userid: string, count: number): Promise<
 
     });
 
-    //console.log('Response headers:', Object.fromEntries(response.headers.entries()));
     const responseText = await response.text();
     if (!response.ok) {
       let errorMessage: string;
@@ -2030,7 +2227,7 @@ export async function getAll() {
   return res.json();
 }
 
-export async function getRegApplications(status: string, count: string) {
+export async function getRegApplicationsv1(status: string, count: string) {
   try {
     const res = await fetchWithAuth4(`${apiUrl}/GetRegistrationsByCount?reg_status=${status}&count=${count}`);
     return res.ok && res.headers.get('content-type')?.startsWith('application/json') ? res.json() : [];
@@ -2039,6 +2236,26 @@ export async function getRegApplications(status: string, count: string) {
     return [];
   }
 }
+
+export async function getRegApplications(status: string, count: string) {
+  try {
+    const res = await fetch(
+      `${apiUrl}/GetRegistrationsByCount?reg_status=${status}&count=${count}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+ 
+    return res.ok && res.headers.get('content-type')?.startsWith('application/json') ? res.json() : [];
+ 
+  } catch (error) {
+    console.error('Error fetching registration applications:', error);
+    return [];
+  }
+ }
 
 interface Complaint {
   crime_location: string;
@@ -2071,7 +2288,7 @@ interface InvestigationsResponse {
   data: Complaint[];
 }
 
-export async function getInvRecords(status: string, count: string) {
+export async function getInvRecordsv1(status: string, count: string) {
   try {
     const response = await fetchWithAuth(`${invUrl}/get-list`, {
       method: 'GET',
@@ -2080,7 +2297,7 @@ export async function getInvRecords(status: string, count: string) {
         count: count
       }
     });
-    console.log(response.data)
+
     // Axios automatically parses JSON and throws on non-2xx status codes
     return response.data || [];
   } catch (error) {
@@ -2091,6 +2308,35 @@ export async function getInvRecords(status: string, count: string) {
     return [];
   }
 }
+
+export async function getInvRecords(status: string, count: string) {
+  try {
+    const queryParams = new URLSearchParams({
+      reg_status: status,
+      count: count
+    });
+ 
+    const res = await fetch(
+      `${invUrl}/get-list?${queryParams}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+ 
+    if (!res.ok) return [];
+    
+    const data = await res.json();
+
+    return data || [];
+ 
+  } catch (error) {
+    console.error('Error fetching records:', error);
+    return [];
+  }
+ }
 
 export async function getInvestigationsList(status: string, count: number): Promise<InvestigationResponseList> {
 
@@ -2119,7 +2365,6 @@ export async function getInvestigationsList(status: string, count: number): Prom
     if (responseText) {
       try {
         result = JSON.parse(responseText);
-        console.log(result)
       } catch (parseError) {
         console.error('Error parsing response:', parseError);
         throw new Error(`Invalid JSON response: ${responseText}`);
@@ -2235,7 +2480,7 @@ export async function getLicenseApplications(status: string, count: string) {
   }
 }
 
-export async function getEndorsementRecords(status: string, count: string) {
+export async function getEndorsementRecordsv1(status: string, count: string) {
   try {
     const res = await fetchWithAuth4(`${apiUrl}/GetRegistrationsByCount?endorsement_status=${status}&count=${count}`);
     return res.ok && res.headers.get('content-type')?.startsWith('application/json') ? res.json() : [];
@@ -2244,6 +2489,26 @@ export async function getEndorsementRecords(status: string, count: string) {
     return [];
   }
 }
+
+export async function getEndorsementRecords(status: string, count: string) {
+  try {
+    const res = await fetch(
+      `${apiUrl}/GetRegistrationsByCount?endorsement_status=${status}&count=${count}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+ 
+    return res.ok && res.headers.get('content-type')?.startsWith('application/json') ? res.json() : [];
+ 
+  } catch (error) {
+    console.error('Error fetching endorsement records:', error);
+    return [];
+  }
+ }
 
 export async function getLicenseEndorsementRecords(status: string, count: string) {
   try {
@@ -2255,7 +2520,7 @@ export async function getLicenseEndorsementRecords(status: string, count: string
   }
 }
 
-export async function getNext(status: string) {
+export async function getNextv1(status: string) {
   try {
     const res = await fetchWithAuth4(`${apiUrl}/getNext/?reg_status=${status}`, { cache: 'no-cache' });
     if (!res.ok || res.status !== 200) return null;
@@ -2266,7 +2531,29 @@ export async function getNext(status: string) {
   }
 }
 
-export async function searchById(id: string){
+export async function getNext(status: string) {
+  try {
+    const res = await fetch(
+      `${apiUrl}/getNext/?reg_status=${status}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        cache: 'no-cache'
+      }
+    );
+ 
+    if (!res.ok || res.status !== 200) return null;
+    return res.headers.get('content-type')?.startsWith('application/json') ? res.json() : null;
+ 
+  } catch (error) {
+    console.error('Error fetching next item:', error);
+    return null;
+  }
+ }
+
+export async function searchByIdv1(id: string){
   try{
     const res = await fetchWithAuth4(`${apiUrl}/search-record/?search=${id}`, { cache: 'no-cache' });
     if (!res.ok || res.status !== 200) return null;
@@ -2275,6 +2562,28 @@ export async function searchById(id: string){
     console.error('Error fetching record', error)
   }
 }
+
+export async function searchById(id: string) {
+  try {
+    const res = await fetch(
+      `${apiUrl}/search-record/?search=${id}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        cache: 'no-cache'
+      }
+    );
+ 
+    if (!res.ok || res.status !== 200) return null;
+    return res.headers.get('content-type')?.startsWith('application/json') ? res.json() : null;
+ 
+  } catch (error) {
+    console.error('Error fetching record', error);
+    return null;
+  }
+ }
 
 export async function getNextLicense(status: string) {
   try {
@@ -2307,14 +2616,8 @@ export async function getInvRecordById(Id: string) {
     const response = await fetch(`${invUrl}/complaints/${Id}`, {
       method: 'GET',
       headers: {
-        'Cache-Control': 'no-store',
-        // Add any auth headers if needed
       },
-      // Next.js 13+ fetch options
-      cache: 'no-store',
-      next: {
-        revalidate: 60 // Optional: revalidate every minute
-      }
+      cache: 'no-cache',
     });
 
     if (!response.ok) {
@@ -2355,7 +2658,7 @@ export async function updateCaseById(code: string, updateData: Investigation | n
     throw error;
   }
 }
-
+// NOT-INUSE
 export async function getComplaintsById(Id: string): Promise<InvestigationResponse> {
   try {
     const response = await fetchWithAuth(
@@ -2396,8 +2699,8 @@ export async function getComplaintsById(Id: string): Promise<InvestigationRespon
       //data: null
     };
   }
- }
-
+}
+// NOT-INUSE
  export async function getInById(Id: string): Promise<InvestigationResponse> {
   try {
     const response = await fetchWithAuth4(`${invUrl}/complaints/${Id}`, { cache: 'no-cache' });
@@ -2713,6 +3016,69 @@ export async function getChangeOfCategoryById(Id: string): Promise<ChangeOfCateg
   }
 }
 
+export async function getStudentTeacherById(Id: string): Promise<StudentTeacherResponse> {
+
+  try {
+    const response = await fetch(`${studentTeacherUrl}/student-teacher/${Id}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        // Add any auth headers if needed
+      },
+      cache: 'no-store', // Equivalent to 'no-cache'
+      // next: {
+      //   tags: ['category-change'], // Optional: for revalidation
+      // }
+    });
+
+    // Get the raw response text first
+    const responseText = await response.text();
+
+    if (!response.ok) {
+      let errorMessage: string;
+      try {
+        const errorData = JSON.parse(responseText);
+        errorMessage = errorData.message || `HTTP error! status: ${response.status}`;
+      } catch (parseError) {
+        errorMessage = `HTTP error! status: ${response.status}. Raw response: ${responseText}`;
+      }
+      throw new Error(errorMessage);
+    }
+
+    let result;
+    if (responseText) {
+      try {
+        result = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error('Error parsing response:', parseError);
+        throw new Error(`Invalid JSON response: ${responseText}`);
+      }
+    } else {
+      result = { message: 'Success', code: response.status, data: null };
+    }
+
+    return {
+      code: response.status,
+      message: 'success',
+      teacher_registrations: result?.teacher_registrations,
+      student_study_programmes: result?.student_study_programmes,
+      student_preliminary_infos: result?.student_preliminary_infos,
+      bio_datas: result?.bio_datas,
+      background_checks: result?.background_checks,
+      declarations: result?.declarations,
+      offence_convictions: result?.offence_convictions,
+      attachments: result?.attachments,
+    };
+
+  } catch (error) {
+    console.error('Error fetching record by ID:', error);
+    return {
+      code: error instanceof Error && 'status' in error ? (error as any).status : 500,
+      message: error instanceof Error ? error.message : 'Failed to fetch record. Please try again'
+    };
+  }
+}
+
 export async function getRestorationByIdv1(Id: string): Promise<RestorationResponse> {
   try {
     const response = await fetchWithAuth4(`${restorationUrl}/license-restoration/${Id}`, { cache: 'no-cache' });
@@ -2847,7 +3213,7 @@ export async function getLicenseById(Id: string) {
   }
 }
 
-export async function UpdateStatus(id: string, status: string, rejection_reason: string) {
+export async function UpdateStatusV1(id: string, status: string, rejection_reason: string) {
   const res = await fetchWithAuth(`${apiUrl}/teacher_registrations/${id}?reg_status=${status}&rejection_reason=${rejection_reason}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
@@ -2855,7 +3221,20 @@ export async function UpdateStatus(id: string, status: string, rejection_reason:
   return res.status;
 }
 
-export async function ReturnToCustomer(id: string, status: string, items: (string | undefined)[]) {
+export async function UpdateStatus(id: string, status: string, rejection_reason: string) {
+  const res = await fetch(
+    `${apiUrl}/teacher_registrations/${id}?reg_status=${status}&rejection_reason=${rejection_reason}`,
+    {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }
+  );
+  return res.status;
+ }
+
+export async function ReturnToCustomerv1(id: string, status: string, items: (string | undefined)[]) {
 
   const res = await fetchWithAuth4(`${apiUrl}/customer-action/${id}?reg_status=${status}`, {
     method: 'POST',
@@ -2868,6 +3247,23 @@ export async function ReturnToCustomer(id: string, status: string, items: (strin
   return res.status;
 }
 
+export async function ReturnToCustomer(id: string, status: string, items: (string | undefined)[]) {
+  const res = await fetch(
+    `${apiUrl}/customer-action/${id}?reg_status=${status}`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        reg_status: status,
+        items
+      })
+    }
+  );
+  return res.status;
+ }
+
 export async function UpdateLicenseStatus(id: string, status: string) {
   const res = await fetchWithAuth(`${licUrl}/license_applications/${id}?reg_status=${status}`, {
     method: 'PUT',
@@ -2876,25 +3272,69 @@ export async function UpdateLicenseStatus(id: string, status: string) {
   return res.status;
 }
 
+// export async function GetReports() {
+//   const res = await fetchWithAuth4(`${apiUrl}/StatisticalReports/`);
+//   return res.json();
+// }
+
+// export async function getMonthlyTeacherRegistrations() {
+//   const res = await fetchWithAuth4(`${apiUrl}/Monthly-Statistics/`);
+//   return res.json();
+// }
+
+// export async function getStatuses() {
+//   const res = await fetchWithAuth4(`${apiUrl}/Status-Statistics-Graph/`);
+//   return res.json();
+// }
+
+// export async function getTeacherRegistrationsByStatus() {
+//   const res = await fetchWithAuth4(`${apiUrl}/Status-Statistics/`);
+//   return res.json();
+// }
+
 export async function GetReports() {
-  const res = await fetchWithAuth4(`${apiUrl}/StatisticalReports/`);
+  const res = await fetch(
+    `${apiUrl}/StatisticalReports/`,
+    {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' }
+    }
+  );
   return res.json();
-}
-
-export async function getMonthlyTeacherRegistrations() {
-  const res = await fetchWithAuth4(`${apiUrl}/Monthly-Statistics/`);
+ }
+ 
+ export async function getMonthlyTeacherRegistrations() {
+  const res = await fetch(
+    `${apiUrl}/Monthly-Statistics/`,
+    {
+      method: 'GET', 
+      headers: { 'Content-Type': 'application/json' }
+    }
+  );
   return res.json();
-}
-
-export async function getStatuses() {
-  const res = await fetchWithAuth4(`${apiUrl}/Status-Statistics-Graph/`);
+ }
+ 
+ export async function getStatuses() {
+  const res = await fetch(
+    `${apiUrl}/Status-Statistics-Graph/`,
+    {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' }
+    }
+  );
   return res.json();
-}
-
-export async function getTeacherRegistrationsByStatus() {
-  const res = await fetchWithAuth4(`${apiUrl}/Status-Statistics/`);
+ }
+ 
+ export async function getTeacherRegistrationsByStatus() {
+  const res = await fetch(
+    `${apiUrl}/Status-Statistics/`,
+    {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' }
+    }
+  );
   return res.json();
-}
+ }
 
 export async function UpdateLicenseEndorsementStatus(id: string, status: string) {
   const res = await fetchWithAuth(`${licUrl}/license_applications/${id}?endorsement_status=${status}`, {
@@ -2904,7 +3344,7 @@ export async function UpdateLicenseEndorsementStatus(id: string, status: string)
   return res.status;
 }
 
-export async function UpdateEndorsementStatus(id: string, status: string) {
+export async function UpdateEndorsementStatusv1(id: string, status: string) {
   const res = await fetchWithAuth(`${apiUrl}/teacher_registrations/${id}?endorsement_status=${status}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
@@ -2912,7 +3352,18 @@ export async function UpdateEndorsementStatus(id: string, status: string) {
   return res.status;
 }
 
-export async function BulkRegistrationUpdate(data: string) {
+export async function UpdateEndorsementStatus(id: string, status: string) {
+  const res = await fetch(
+    `${apiUrl}/teacher_registrations/${id}?endorsement_status=${status}`,
+    {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' }
+    }
+  );
+  return res.status;
+ }
+
+export async function BulkRegistrationUpdatev1(data: string) {
   const jsonData = JSON.parse(data);
   const res = await fetchWithAuth4(`${apiUrl}/processBulkRegistrations/`, {
     method: 'PUT',
@@ -2921,6 +3372,19 @@ export async function BulkRegistrationUpdate(data: string) {
   });
   return res.status;
 }
+
+export async function BulkRegistrationUpdate(data: string) {
+  const jsonData = JSON.parse(data);
+  const res = await fetch(
+    `${apiUrl}/processBulkRegistrations/`,
+    {
+      method: 'PUT', 
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(jsonData)
+    }
+  );
+  return res.status;
+ }
 
 export async  function ConvertTime(time: string){
   return new Intl.DateTimeFormat("en-US", options).format(new Date(time))

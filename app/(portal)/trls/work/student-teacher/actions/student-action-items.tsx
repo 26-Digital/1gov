@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { updateChangeOfCategoryStatus, updateRevocationStatus } from '@/app/lib/actions'
+import { updateStudentTeacherStatus} from '@/app/lib/actions'
 import { useRouter } from 'next/navigation'
 import {
   AlertDialog,
@@ -44,7 +44,7 @@ interface FlowActionConfig {
 
 type DialogType = 'actions' | 'report' | 'status' | 'submit' | 'activity' | null;
 
-const CategoryActionButtons: React.FC<ActionButtonsProps> = ({ recordId, userRole, current_status }) => {
+const StudentTeacherActionButtons: React.FC<ActionButtonsProps> = ({ recordId, userRole, current_status }) => {
   const [activeDialog, setActiveDialog] = useState<DialogType>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -58,7 +58,7 @@ const CategoryActionButtons: React.FC<ActionButtonsProps> = ({ recordId, userRol
   const { toast } = useToast();
   
   // Get flow-action configuration
-  const accessConfig: FlowActionConfig = getFlowActionUserDetails(userRole, current_status,'changeofcategory') || {
+  const accessConfig: FlowActionConfig = getFlowActionUserDetails(userRole, current_status,'student') || {
     hasPermission: false,
     nextStatus: [],
     message: '',
@@ -94,7 +94,7 @@ const CategoryActionButtons: React.FC<ActionButtonsProps> = ({ recordId, userRol
     try {
       const authData = getAuthData();
       const bearerToken = authData?.access_token;
-      const result = await updateChangeOfCategoryStatus(recordId, status, bearerToken);
+      const result = await updateStudentTeacherStatus(recordId, status, bearerToken);
       if (result.code === 200 || result.code === 201) {
         closeDialog();
         toast({
@@ -304,4 +304,4 @@ const CategoryActionButtons: React.FC<ActionButtonsProps> = ({ recordId, userRol
   );
 };
 
-export default  CategoryActionButtons;
+export default  StudentTeacherActionButtons;
